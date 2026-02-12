@@ -1,0 +1,23 @@
+{
+  "name": "log-day",
+  "version": "0.1.0",
+  "description": "Life Dashboard — quantified self dashboard from Obsidian daily notes",
+  "main": "main.js",
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "dev": "node esbuild.config.mjs --watch",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "esbuild": "^0.20.2",
+    "eslint": "^8.57.1",
+    "obsidian": "^1.11.4",
+    "typescript": "^5.9.3"
+  }
+}

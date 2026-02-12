@@ -1,0 +1,603 @@
+/* ===== Life Dashboard — ld- prefixed, matching existing dashboard-bundle.js style ===== */
+
+/* ---------- Container ---------- */
+.ld-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ---------- Header (view switcher + goals) ---------- */
+.ld-header {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 12px 16px;
+  flex-shrink: 0;
+}
+
+/* ---------- View Switcher ---------- */
+.ld-view-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.ld-view-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ld-view-switcher {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ld-view-btn {
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  font-size: 0.8em;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.ld-view-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.ld-view-btn--active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* ---------- Goal Panel ---------- */
+.ld-goal-panel {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9em;
+}
+
+.ld-goal-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.ld-goal-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ld-goal-content {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  min-height: 24px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ld-goal-content:hover {
+  border-color: var(--background-modifier-border);
+}
+
+.ld-goal-content:focus {
+  border-color: var(--interactive-accent);
+  outline: none;
+  background: var(--background-primary-alt);
+}
+
+/* ---------- Body (scrollable area below header) ---------- */
+.ld-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---------- Chart ---------- */
+.ld-charts {
+  flex-shrink: 0;
+  padding: 0 16px;
+  margin-bottom: 20px;
+}
+
+.ld-chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+
+/* ---------- Table ---------- */
+.ld-table-wrapper {
+  flex: 1;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.ld-scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  height: 100%;
+}
+
+.ld-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Inter", "Pretendard", sans-serif;
+  font-size: 0.9em;
+  margin: 10px 0;
+  table-layout: fixed;
+}
+
+.ld-th {
+  text-align: center;
+  padding: 12px 8px;
+  border-bottom: 2px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+.ld-table tr {
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ld-td {
+  padding: 8px;
+  vertical-align: middle;
+  height: 40px;
+  text-align: center;
+}
+
+/* ---------- Date Cell ---------- */
+.ld-date-cell {
+  text-align: left;
+  padding-left: 16px !important;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 500;
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ld-date-link {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+
+.ld-date-link:hover {
+  color: var(--text-accent);
+}
+
+/* ---------- Boolean Cell (custom check indicator) ---------- */
+.ld-bool-cell {
+  cursor: pointer;
+  position: relative;
+}
+
+.ld-check-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 2px solid var(--text-faint);
+  margin: 0 auto;
+  transition: all 0.2s;
+}
+
+.ld-bool-cell.active .ld-check-indicator {
+  background-color: rgba(46, 164, 79, 0.8);
+  border-color: rgba(46, 164, 79, 0.8);
+  transform: scale(1.1);
+}
+
+/* ---------- Time / Number Input ---------- */
+.ld-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  color: var(--text-normal);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.95em;
+  opacity: 0.7;
+}
+
+.ld-input:focus {
+  outline: none;
+  opacity: 1;
+  font-weight: bold;
+}
+
+/* ---------- Sleep Badge ---------- */
+.ld-sleep-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background-color: var(--background-secondary);
+  color: var(--text-muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.ld-sleep-badge.highlight {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* ---------- Journal / Text Cell ---------- */
+.ld-journal-cell {
+  text-align: left !important;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  padding: 8px 12px !important;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+
+.ld-journal-cell:hover {
+  color: var(--text-normal);
+  background-color: var(--background-secondary);
+}
+
+/* ---------- Modal (Journal / Tasks editing) ---------- */
+.ld-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(2px);
+}
+
+.ld-modal-box {
+  background: var(--background-primary);
+  width: 90%;
+  max-width: 600px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--background-modifier-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ld-modal-header {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: var(--text-normal);
+}
+
+.ld-modal-textarea {
+  width: 100%;
+  height: 200px;
+  resize: vertical;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--text-normal);
+  font-family: "Inter", sans-serif;
+  line-height: 1.5;
+}
+
+.ld-modal-textarea:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+}
+
+.ld-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ld-btn {
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  font-size: 0.8em;
+}
+
+.ld-btn-cancel {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.ld-btn-cancel:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.ld-btn-save {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.ld-btn-save:hover {
+  opacity: 0.9;
+}
+
+/* ---------- Tasks Cell (inline checkboxes) ---------- */
+.ld-tasks-cell {
+  text-align: left !important;
+  padding: 4px 8px !important;
+  vertical-align: top;
+}
+
+.ld-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ld-task-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 0;
+}
+
+.ld-task-checkbox {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--interactive-accent);
+  cursor: pointer;
+}
+
+.ld-task-text {
+  font-size: 0.85em;
+  color: var(--text-normal);
+  cursor: text;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ld-task-text:hover {
+  color: var(--text-accent);
+}
+
+.ld-task-done {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.ld-task-edit-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85em;
+  padding: 1px 4px;
+  border: 1px solid var(--interactive-accent);
+  border-radius: 3px;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  font-family: inherit;
+  outline: none;
+}
+
+.ld-task-add-input {
+  width: 100%;
+  margin-top: 3px;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  border: none;
+  border-top: 1px dashed var(--background-modifier-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  outline: none;
+}
+
+.ld-task-add-input::placeholder {
+  color: var(--text-faint);
+}
+
+.ld-task-add-input:focus {
+  color: var(--text-normal);
+  border-top-color: var(--interactive-accent);
+}
+
+/* ---------- Goal Panel ---------- */
+.ld-goal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9em;
+}
+
+.ld-goal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ld-goal-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.ld-goal-checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--interactive-accent);
+  cursor: pointer;
+}
+
+.ld-goal-text {
+  color: var(--text-normal);
+  flex-grow: 1;
+  cursor: text;
+}
+
+.ld-goal-edit-input {
+  flex-grow: 1;
+  background: var(--background-secondary);
+  border: 1px solid var(--interactive-accent);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--text-normal);
+}
+
+.ld-goal-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: var(--text-faint);
+  padding: 0 4px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.ld-goal-delete:hover {
+  opacity: 1;
+}
+
+.ld-goal-add-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ld-goal-add-input {
+  flex-grow: 1;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--text-normal);
+}
+
+/* ---------- Mobile Responsive ---------- */
+@media (max-width: 768px) {
+  /*
+   * 키보드가 올라오면 Obsidian leaf가 높이를 줄인다.
+   * container(height:100%)도 줄어든 뒤 header(flex-shrink:0)가 공간을 먹으면
+   * body(flex:1)가 0px로 쪼그라들어 chart+table이 사라진다.
+   *
+   * 해결:
+   *  1) container → overflow:clip  (스크롤 포트를 만들지 않음)
+   *  2) body → flex-shrink:0 + min-height  (절대 축소 안 됨)
+   *  3) body → overflow-y:auto  (body 안에서만 스크롤)
+   *
+   * body가 container를 넘칠 수 있지만 clip이 시각적으로 잘라낼 뿐
+   * body 내부의 스크롤은 정상 동작한다.
+   */
+  .ld-container {
+    overflow: clip;
+  }
+
+  .ld-header {
+    flex-wrap: nowrap;
+    padding: 8px 12px;
+    gap: 10px;
+  }
+
+  .ld-goal-panel {
+    min-width: 0;
+    overflow: clip;
+  }
+
+  .ld-body {
+    flex-shrink: 0;
+    min-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .ld-table-wrapper {
+    flex: none;
+    min-height: unset;
+    overflow: visible;
+  }
+
+  .ld-scroll-container {
+    height: auto;
+  }
+
+  .ld-chart-wrapper {
+    height: 220px;
+  }
+
+  .ld-th,
+  .ld-td {
+    padding: 6px;
+    font-size: 0.8em;
+  }
+
+  /* Input: 모바일 기본 둥근 모서리·padding 제거 → 좁은 셀에서도 내용 표시 */
+  .ld-input,
+  .ld-task-add-input,
+  .ld-task-edit-input,
+  .ld-goal-add-input,
+  .ld-goal-edit-input {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 2px;
+    padding: 1px 2px;
+  }
+
+  /* number input 스피너 제거 */
+  .ld-input[type="number"]::-webkit-inner-spin-button,
+  .ld-input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Journal 모달: 키보드 열릴 때만 위로 이동 */
+  .ld-journal-modal-container .modal {
+    transition: transform 0.25s ease;
+  }
+
+  .ld-journal-modal-container.ld-keyboard-open .modal {
+    transform: translateY(-15vh);
+  }
+}

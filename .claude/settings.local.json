@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(node -e:*)",
+      "Bash(node -e \"console.log\\(require\\(''/Users/youngjaesong/Desktop/repository/log-day/node_modules/@typescript-eslint/parser/package.json''\\).version\\)\")",
+      "Bash(npm run lint:*)"
+    ]
+  }
+}

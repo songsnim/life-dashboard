@@ -1,0 +1,9 @@
+{
+  "id": "life-dashboard",
+  "name": "Life Dashboard",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Daily notes 기반 라이프 로그 대시보드",
+  "author": "Youngjae Song",
+  "isDesktopOnly": false
+}
