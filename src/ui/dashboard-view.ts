@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, TFile } from "obsidian";
+import { ItemView, WorkspaceLeaf, TFile, normalizePath } from "obsidian";
 import type { DayEntry, GoalEntry, ViewMode, PluginSettings } from "../types";
 import { VIEW_TYPE_DASHBOARD } from "../constants";
 import { DailyNoteParser } from "../services/daily-note-parser";
@@ -176,7 +176,7 @@ export class DashboardView extends ItemView {
   private resolveDailyNote(date: string): TFile | null {
     // "2023-01-18" → "Area/Daily/Days/2023-01-18 Wed.md"
     const fileName = dailyNoteFileName(date);
-    const path = `${this.settings.dailyNotesFolder}/${fileName}.md`;
+    const path = normalizePath(`${this.settings.dailyNotesFolder}/${fileName}.md`);
     const file = this.app.vault.getAbstractFileByPath(path);
     return file instanceof TFile ? file : null;
   }
@@ -187,7 +187,7 @@ export class DashboardView extends ItemView {
 
     // 실제 파일명 생성: "2023 Week 42" 또는 "2024-01"
     const fileName = type === "weekly" ? weeklyNoteFileName(now) : monthlyNoteFileName(now);
-    const path = `${folder}/${fileName}.md`;
+    const path = normalizePath(`${folder}/${fileName}.md`);
     const file = this.app.vault.getAbstractFileByPath(path);
     if (!(file instanceof TFile)) return null;
 

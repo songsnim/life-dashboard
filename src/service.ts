@@ -1,4 +1,5 @@
-import { App, TFile } from "obsidian";
+import { App } from "obsidian";
+import type { TFile } from "obsidian";
 
 export class DataService {
   constructor(private app: App) {}
@@ -27,15 +28,12 @@ export class DataService {
   }
 
   private async updateSection(file: TFile, key: string, content: string): Promise<void> {
-    const fileContent = await this.app.vault.read(file);
     // 키를 헤더 형식으로 변환 (예: tasks -> Tasks)
     const header = key.charAt(0).toUpperCase() + key.slice(1);
-    
-    const newContent = this.replaceHeaderSection(fileContent, header, content);
-    
-    if (fileContent !== newContent) {
-      await this.app.vault.modify(file, newContent);
-    }
+
+    await this.app.vault.process(file, (fileContent) => {
+      return this.replaceHeaderSection(fileContent, header, content);
+    });
   }
 
   private replaceHeaderSection(content: string, header: string, newBody: string): string {

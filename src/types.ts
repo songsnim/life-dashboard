@@ -69,5 +69,4 @@ export interface ColumnDef {
   label: string;
   type: "date" | "time" | "boolean" | "number" | "text";
   editable: boolean;
-  width?: string;
 }

@@ -27,8 +27,8 @@ export default class LifeDashboardPlugin extends Plugin {
     this.addSettingTab(new LifeDashboardSettingTab(this.app, this));
   }
 
-  async onunload(): Promise<void> {
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_DASHBOARD);
+  onunload(): void {
+    // leaves는 detach하지 않는다 — 플러그인 업데이트 시 기존 위치에서 재초기화됨
   }
 
   async activateView(): Promise<void> {

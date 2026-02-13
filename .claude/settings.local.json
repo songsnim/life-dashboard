@@ -6,7 +6,14 @@
       "Bash(npm run build:*)",
       "Bash(node -e:*)",
       "Bash(node -e \"console.log\\(require\\(''/Users/youngjaesong/Desktop/repository/log-day/node_modules/@typescript-eslint/parser/package.json''\\).version\\)\")",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(curl:*)",
+      "Bash(html2text:*)",
+      "Bash(wc -l:*)",
+      "WebFetch(domain:docs.obsidian.md)",
+      "WebFetch(domain:publish-01.obsidian.md)",
+      "Bash(npm run typecheck:*)",
+      "Bash(git stash:*)"
     ]
   }
 }

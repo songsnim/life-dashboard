@@ -54,11 +54,10 @@ export class TableRenderer {
 
     const allCols = this.getDisplayColumns();
     for (const col of allCols) {
-      const th = tr.createEl("th", { text: col.label, cls: "ld-th" });
-      if (col.width) th.style.width = col.width;
+      const th = tr.createEl("th", { text: col.label, cls: `ld-th ld-col-${col.key}` });
 
       if (col.key === "date") {
-        th.style.cursor = "pointer";
+        th.addClass("ld-th-clickable");
         th.addEventListener("click", () => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this.app as any).commands?.executeCommandById?.("periodic-notes:open-daily-note");
@@ -380,12 +379,12 @@ export class TableRenderer {
     return `${yy}.${mm}.${dd} ${days[d.getDay()]}`;
   }
 
-  private getDisplayColumns(): Array<{ key: string; label: string; type: string; width?: string }> {
-    const cols: Array<{ key: string; label: string; type: string; width?: string }> = [];
+  private getDisplayColumns(): Array<{ key: string; label: string; type: string }> {
+    const cols: Array<{ key: string; label: string; type: string }> = [];
     for (const col of TABLE_COLUMNS) {
       cols.push(col);
       if (col.key === "wakeTime") {
-        cols.push({ key: "_sleep", label: "SLEEP", type: "computed", width: "85px" });
+        cols.push({ key: "_sleep", label: "SLEEP", type: "computed" });
       }
     }
     return cols;
@@ -417,14 +416,8 @@ class JournalModal extends Modal {
     });
     textarea.value = this.content;
     textarea.placeholder = "오늘의 기록을 남겨보세요...";
-    textarea.style.width = "100%";
-    textarea.style.height = "200px";
-    textarea.style.marginBottom = "10px";
 
     const actions = contentEl.createDiv({ cls: "ld-modal-actions" });
-    actions.style.display = "flex";
-    actions.style.justifyContent = "flex-end";
-    actions.style.gap = "10px";
 
     const cancelBtn = actions.createEl("button", { text: "Cancel" });
     cancelBtn.addEventListener("click", () => this.close());

@@ -162,6 +162,23 @@
   user-select: none;
 }
 
+.ld-th-clickable {
+  cursor: pointer;
+}
+
+/* Column widths (table-layout: fixed → th width determines column) */
+.ld-col-date { width: 110px; }
+.ld-col-bedtime,
+.ld-col-wakeTime,
+.ld-col-screenTime { width: 65px; }
+.ld-col-_sleep { width: 85px; }
+.ld-col-reading,
+.ld-col-exercise,
+.ld-col-sobriety { width: 35px; }
+.ld-col-tasks { width: 180px; }
+.ld-col-rating { width: 55px; }
+.ld-col-journal { width: 250px; }
+
 .ld-table tr {
   transition: background-color 0.2s ease;
   border-bottom: 1px solid var(--background-modifier-border);

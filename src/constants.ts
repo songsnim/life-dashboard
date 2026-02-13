@@ -22,17 +22,17 @@ export const SCREEN_TIME_TARGET_MINUTES = 4 * 60;
 
 /** 테이블 컬럼 순서 */
 export const TABLE_COLUMNS: ColumnDef[] = [
-  { key: "date", label: "DATE", type: "date", editable: false, width: "110px" },
-  { key: "bedtime", label: "취침", type: "time", editable: true, width: "65px" },
-  { key: "wakeTime", label: "기상", type: "time", editable: true, width: "65px" },
+  { key: "date", label: "DATE", type: "date", editable: false },
+  { key: "bedtime", label: "취침", type: "time", editable: true },
+  { key: "wakeTime", label: "기상", type: "time", editable: true },
   // SLEEP (computed) inserted dynamically after 기상
-  { key: "reading", label: "독서", type: "boolean", editable: true, width: "35px" },
-  { key: "exercise", label: "운동", type: "boolean", editable: true, width: "35px" },
-  { key: "sobriety", label: "금주", type: "boolean", editable: true, width: "35px" },
-  { key: "screenTime", label: "스크린", type: "time", editable: true, width: "65px" },
-  { key: "tasks", label: "TASKS", type: "text", editable: true, width: "180px" },
-  { key: "rating", label: "평가", type: "number", editable: true, width: "55px" },
-  { key: "journal", label: "JOURNAL", type: "text", editable: true, width: "250px" },
+  { key: "reading", label: "독서", type: "boolean", editable: true },
+  { key: "exercise", label: "운동", type: "boolean", editable: true },
+  { key: "sobriety", label: "금주", type: "boolean", editable: true },
+  { key: "screenTime", label: "스크린", type: "time", editable: true },
+  { key: "tasks", label: "TASKS", type: "text", editable: true },
+  { key: "rating", label: "평가", type: "number", editable: true },
+  { key: "journal", label: "JOURNAL", type: "text", editable: true },
 ];
 
 /** frontmatter에서 읽을 property 키 매핑 (한글 property → DayEntry 필드) */
