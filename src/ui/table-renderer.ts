@@ -4,6 +4,13 @@ import { TABLE_COLUMNS, INTERNAL_TO_FRONTMATTER_MAP } from "../constants";
 import { DataService } from "../service";
 import { calculateSleepMinutes } from "../service";
 
+/** Obsidian의 비공식 commands API (공식 타입 정의에 미포함) */
+interface AppWithCommands {
+  commands?: {
+    executeCommandById?: (id: string) => boolean;
+  };
+}
+
 /**
  * 대시보드 테이블 렌더러.
  * 기존 dashboard-bundle.js의 gh-table 스타일 구현.
@@ -21,7 +28,7 @@ export class TableRenderer {
     private onInteraction?: (interacting: boolean) => void,
   ) {}
 
-  private async updateEntry(filePath: string, key: string, value: any) {
+  private async updateEntry(filePath: string, key: string, value: string | number | boolean | null): Promise<void> {
     const file = this.app.vault.getAbstractFileByPath(filePath);
     if (file instanceof TFile) {
       // Daily Note의 'tasks' 데이터는 'Todo' 섹션에 저장됩니다.
@@ -59,8 +66,7 @@ export class TableRenderer {
       if (col.key === "date") {
         th.addClass("ld-th-clickable");
         th.addEventListener("click", () => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (this.app as any).commands?.executeCommandById?.("periodic-notes:open-daily-note");
+          (this.app as unknown as AppWithCommands).commands?.executeCommandById?.("periodic-notes:open-daily-note");
         });
       }
     }
@@ -122,17 +128,17 @@ export class TableRenderer {
 
     td.createDiv({ cls: "ld-check-indicator" });
 
-    td.addEventListener("click", async () => {
+    td.addEventListener("click", () => {
       const newState = !td.hasClass("active");
       td.toggleClass("active", newState);
       entry[key] = newState;
-      await this.updateEntry(entry.filePath, key, newState);
+      void this.updateEntry(entry.filePath, key, newState);
     });
   }
 
   private renderSleepBadge(td: HTMLElement, entry: DayEntry): HTMLSpanElement {
     const badge = td.createEl("span", { cls: "ld-sleep-badge" });
-    const mins = calculateSleepMinutes(entry.bedtime, entry.wakeTime);
+    const mins = calculateSleepMinutes(entry.bedtime ?? "", entry.wakeTime ?? "");
     if (mins && mins > 0) {
       const h = Math.floor(mins / 60);
       const m = mins % 60;
@@ -151,11 +157,11 @@ export class TableRenderer {
     });
     const originalValue = entry[key] ?? "";
 
-    input.addEventListener("blur", async () => {
+    input.addEventListener("blur", () => {
       if (input.value.trim() === originalValue) return;
       const val = input.value.trim() === "" ? null : input.value.trim();
       entry[key] = val;
-      await this.updateEntry(entry.filePath, key, val);
+      void this.updateEntry(entry.filePath, key, val);
     });
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") input.blur();
@@ -173,10 +179,10 @@ export class TableRenderer {
     input.setAttribute("min", "0");
     input.setAttribute("max", "10");
 
-    input.addEventListener("blur", async () => {
+    input.addEventListener("blur", () => {
       const val = input.value === "" ? null : Number(input.value);
       entry[key] = val;
-      await this.updateEntry(entry.filePath, key, val);
+      void this.updateEntry(entry.filePath, key, val);
     });
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") input.blur();
@@ -194,10 +200,10 @@ export class TableRenderer {
       this.openJournalModal(
         this.formatDisplayDate(entry.date),
         entry.journal,
-        async (newText) => {
+        (newText) => {
           span.setText(newText ? newText.split("\n")[0].trim() : "-");
           entry.journal = newText;
-          await this.updateEntry(entry.filePath, "journal", newText);
+          void this.updateEntry(entry.filePath, "journal", newText);
         },
       );
     });
@@ -234,14 +240,13 @@ export class TableRenderer {
           placeholder: "+",
           cls: "ld-task-add-input",
         });
-        addInput.addEventListener("keydown", async (e) => {
+        addInput.addEventListener("keydown", (e) => {
           if (e.key === "Enter" && !e.isComposing) {
             e.preventDefault();
             const text = addInput.value.trim();
             if (!text) return;
             tasks.push({ checked: false, text });
-            await save();
-            rebuild(0);
+            void save().then(() => rebuild(0));
           }
         });
       }
@@ -264,11 +269,12 @@ export class TableRenderer {
     // checkbox
     const cb = row.createEl("input", { type: "checkbox", cls: "ld-task-checkbox" });
     cb.checked = task.checked;
-    cb.addEventListener("change", async () => {
+    cb.addEventListener("change", () => {
       tasks[index].checked = cb.checked;
-      await save();
-      const span = row.querySelector("span.ld-task-text");
-      if (span) span.toggleClass("ld-task-done", cb.checked);
+      void save().then(() => {
+        const span = row.querySelector("span.ld-task-text");
+        if (span) span.toggleClass("ld-task-done", cb.checked);
+      });
     });
 
     const switchToEdit = () => {
@@ -277,16 +283,15 @@ export class TableRenderer {
       editInput.value = task.text;
       editInput.className = "ld-task-edit-input";
       
-      const onBlur = async () => {
+      const onBlur = () => {
         const newText = editInput.value.trim();
         tasks[index].text = newText;
-        await save();
-        rebuild();
+        void save().then(() => rebuild());
       };
 
       editInput.addEventListener("blur", onBlur);
-      
-      editInput.addEventListener("keydown", async (ev) => {
+
+      editInput.addEventListener("keydown", (ev) => {
         if (ev.key === "Enter" && !ev.isComposing) {
           ev.preventDefault();
           // Blur 이벤트 중복 실행 방지
@@ -298,17 +303,15 @@ export class TableRenderer {
           } else {
              tasks[index].text = newText;
           }
-          
+
           // 다음 줄에 새 항목 추가
           tasks.splice(index + 1, 0, { checked: false, text: "" });
-          await save();
-          rebuild(index + 1);
+          void save().then(() => rebuild(index + 1));
         } else if (ev.key === "Backspace" && editInput.value === "") {
           ev.preventDefault();
           editInput.removeEventListener("blur", onBlur);
           tasks.splice(index, 1);
-          await save();
-          rebuild(Math.max(0, index - 1));
+          void save().then(() => rebuild(Math.max(0, index - 1)));
         } else if (ev.key === "Escape" && !ev.isComposing) {
             ev.preventDefault();
             editInput.removeEventListener("blur", onBlur);

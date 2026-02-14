@@ -106,9 +106,10 @@ export class DashboardView extends ItemView {
     await this.refresh();
   }
 
-  async onClose(): Promise<void> {
+  onClose(): Promise<void> {
     this.chartRenderer?.destroy();
     if (this.refreshTimer) clearTimeout(this.refreshTimer);
+    return Promise.resolve();
   }
 
   /** debounced refresh — 연속 변경 시 마지막 변경 후 DEBOUNCE_MS 뒤 1회만 실행 */

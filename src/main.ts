@@ -6,7 +6,7 @@ import { DataService } from "./service";
 
 export default class LifeDashboardPlugin extends Plugin {
   settings: PluginSettings = { ...DEFAULT_SETTINGS };
-  dataService: DataService;
+  dataService!: DataService;
 
   async onload(): Promise<void> {
     await this.loadSettings();
@@ -15,13 +15,13 @@ export default class LifeDashboardPlugin extends Plugin {
     this.registerView(VIEW_TYPE_DASHBOARD, (leaf) => new DashboardView(leaf, this.settings, this.dataService));
 
     this.addRibbonIcon("layout-dashboard", "Life Dashboard", () => {
-      this.activateView();
+      void this.activateView();
     });
 
     this.addCommand({
-      id: "open-life-dashboard",
-      name: "Open Life Dashboard",
-      callback: () => this.activateView(),
+      id: "open-dashboard",
+      name: "Open dashboard",
+      callback: () => { void this.activateView(); },
     });
 
     this.addSettingTab(new LifeDashboardSettingTab(this.app, this));
@@ -74,54 +74,54 @@ class LifeDashboardSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
-      .setName("Daily Notes 폴더")
-      .setDesc("Daily Note 파일들이 위치한 폴더 경로")
+      .setName("Daily notes 폴더")
+      .setDesc("Daily note 파일들이 위치한 폴더 경로")
       .addText((text) =>
         text
           .setPlaceholder("Daily")
           .setValue(this.plugin.settings.dailyNotesFolder)
-          .onChange(async (value) => {
+          .onChange((value) => {
             this.plugin.settings.dailyNotesFolder = value.trim();
-            await this.plugin.saveSettings();
+            void this.plugin.saveSettings();
           }),
       );
 
     new Setting(containerEl)
-      .setName("Weekly Notes 폴더")
-      .setDesc("Weekly Note 파일들이 위치한 폴더 경로")
+      .setName("Weekly notes 폴더")
+      .setDesc("Weekly note 파일들이 위치한 폴더 경로")
       .addText((text) =>
         text
           .setPlaceholder("Weekly")
           .setValue(this.plugin.settings.weeklyNotesFolder)
-          .onChange(async (value) => {
+          .onChange((value) => {
             this.plugin.settings.weeklyNotesFolder = value.trim();
-            await this.plugin.saveSettings();
+            void this.plugin.saveSettings();
           }),
       );
 
     new Setting(containerEl)
-      .setName("Monthly Notes 폴더")
-      .setDesc("Monthly Note 파일들이 위치한 폴더 경로")
+      .setName("Monthly notes 폴더")
+      .setDesc("Monthly note 파일들이 위치한 폴더 경로")
       .addText((text) =>
         text
           .setPlaceholder("Monthly")
           .setValue(this.plugin.settings.monthlyNotesFolder)
-          .onChange(async (value) => {
+          .onChange((value) => {
             this.plugin.settings.monthlyNotesFolder = value.trim();
-            await this.plugin.saveSettings();
+            void this.plugin.saveSettings();
           }),
       );
 
     new Setting(containerEl)
-      .setName("Daily Note 파일명 포맷")
+      .setName("Daily note 파일명 포맷")
       .setDesc("moment.js 포맷 (기본: YYYY-MM-DD)")
       .addText((text) =>
         text
           .setPlaceholder("YYYY-MM-DD")
           .setValue(this.plugin.settings.dailyFormat)
-          .onChange(async (value) => {
+          .onChange((value) => {
             this.plugin.settings.dailyFormat = value.trim();
-            await this.plugin.saveSettings();
+            void this.plugin.saveSettings();
           }),
       );
   }

@@ -10,18 +10,18 @@ export class DataService {
    * @param key 수정할 컬럼 키 (frontmatter 키 또는 섹션 헤더)
    * @param value 저장할 값
    */
-  async updateValue(file: TFile, key: string, value: any): Promise<void> {
+  async updateValue(file: TFile, key: string, value: string | number | boolean | null): Promise<void> {
     // 본문 섹션으로 처리해야 하는 키들 (소문자 기준)
     const sectionKeys = ["tasks", "journal", "goal", "todo"];
     
     if (sectionKeys.includes(key.toLowerCase())) {
-      await this.updateSection(file, key, value);
+      await this.updateSection(file, key, String(value ?? ""));
     } else {
       await this.updateFrontmatter(file, key, value);
     }
   }
 
-  private async updateFrontmatter(file: TFile, key: string, value: any): Promise<void> {
+  private async updateFrontmatter(file: TFile, key: string, value: string | number | boolean | null): Promise<void> {
     await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
       frontmatter[key] = value;
     });

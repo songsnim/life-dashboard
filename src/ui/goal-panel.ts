@@ -28,9 +28,9 @@ export class GoalPanel {
     this.wrapperEl.empty();
 
     if (mode === "weekly" && weekly) {
-      this.renderGoal(this.wrapperEl, weekly, "Weekly Goal");
+      this.renderGoal(this.wrapperEl, weekly, "Weekly goal");
     } else if (mode === "monthly" && monthly) {
-      this.renderGoal(this.wrapperEl, monthly, "Monthly Goal");
+      this.renderGoal(this.wrapperEl, monthly, "Monthly goal");
     }
     // recent / yearly → goal 표시 안 함
   }
@@ -52,13 +52,13 @@ export class GoalPanel {
       const checkbox = row.createEl("input", { type: "checkbox" });
       checkbox.checked = g.checked;
       checkbox.addClass("ld-goal-checkbox");
-      checkbox.addEventListener("change", async () => {
+      checkbox.addEventListener("change", () => {
         const file = this.app.vault.getAbstractFileByPath(goalEntry.filePath);
         if (file instanceof TFile) {
           goals[index].checked = checkbox.checked;
           const newContent = this.serializeGoals(goals);
           goalEntry.content = newContent;
-          await this.dataService.updateValue(file, "goal", newContent);
+          void this.dataService.updateValue(file, "goal", newContent);
         }
       });
 
@@ -92,22 +92,23 @@ export class GoalPanel {
           this.renderGoalList(container, goals, goalEntry);
         };
 
-        editInput.addEventListener("blur", save);
+        editInput.addEventListener("blur", () => { void save(); });
         editInput.addEventListener("keydown", (ev) => {
-          if (ev.key === "Enter") { ev.preventDefault(); save(); }
+          if (ev.key === "Enter") { ev.preventDefault(); void save(); }
           if (ev.key === "Escape") { ev.preventDefault(); editInput.replaceWith(labelEl); }
         });
       });
 
       const deleteBtn = row.createEl("button", { text: "\u{1F5D1}\u{FE0F}", cls: "ld-goal-delete" });
-      deleteBtn.addEventListener("click", async () => {
+      deleteBtn.addEventListener("click", () => {
         const file = this.app.vault.getAbstractFileByPath(goalEntry.filePath);
         if (file instanceof TFile) {
           goals.splice(index, 1);
           const newContent = this.serializeGoals(goals);
           goalEntry.content = newContent;
-          await this.dataService.updateValue(file, "goal", newContent);
-          row.remove();
+          void this.dataService.updateValue(file, "goal", newContent).then(() => {
+            row.remove();
+          });
         }
       });
     });
@@ -136,9 +137,9 @@ export class GoalPanel {
       this.renderGoal(container, goalEntry, "");
     };
 
-    addBtn.addEventListener("click", handleAdd);
+    addBtn.addEventListener("click", () => { void handleAdd(); });
     addInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); handleAdd(); }
+      if (e.key === "Enter") { e.preventDefault(); void handleAdd(); }
     });
   }
 
