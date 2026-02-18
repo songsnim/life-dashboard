@@ -118,7 +118,7 @@ export class TableRenderer {
     });
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      this.app.workspace.openLinkText(entry.filePath, "", false);
+      void this.app.workspace.openLinkText(entry.filePath, "", false);
     });
   }
 

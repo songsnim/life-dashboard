@@ -14,7 +14,7 @@ export default class LifeDashboardPlugin extends Plugin {
 
     this.registerView(VIEW_TYPE_DASHBOARD, (leaf) => new DashboardView(leaf, this.settings, this.dataService));
 
-    this.addRibbonIcon("layout-dashboard", "Life Dashboard", () => {
+    this.addRibbonIcon("layout-dashboard", "Life dashboard", () => {
       void this.activateView();
     });
 
@@ -34,13 +34,13 @@ export default class LifeDashboardPlugin extends Plugin {
   async activateView(): Promise<void> {
     const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD);
     if (existing.length > 0) {
-      this.app.workspace.revealLeaf(existing[0]);
+      void this.app.workspace.revealLeaf(existing[0]);
       return;
     }
 
     const leaf = this.app.workspace.getLeaf("tab");
     await leaf.setViewState({ type: VIEW_TYPE_DASHBOARD, active: true });
-    this.app.workspace.revealLeaf(leaf);
+    void this.app.workspace.revealLeaf(leaf);
   }
 
   async loadSettings(): Promise<void> {
@@ -114,10 +114,10 @@ class LifeDashboardSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Daily note 파일명 포맷")
-      .setDesc("moment.js 포맷 (기본: YYYY-MM-DD)")
+      .setDesc("날짜 포맷을 moment.js 문법으로 지정합니다 (기본: YYYY-MM-DD ddd)")
       .addText((text) =>
         text
-          .setPlaceholder("YYYY-MM-DD")
+          .setPlaceholder("YYYY-MM-DD ddd")
           .setValue(this.plugin.settings.dailyFormat)
           .onChange((value) => {
             this.plugin.settings.dailyFormat = value.trim();

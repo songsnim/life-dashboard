@@ -43,7 +43,7 @@ export class DashboardView extends ItemView {
   }
 
   getDisplayText(): string {
-    return "Life Dashboard";
+    return "Life dashboard";
   }
 
   getIcon(): string {
@@ -60,7 +60,7 @@ export class DashboardView extends ItemView {
 
     this.viewSwitcher = new ViewSwitcher(headerEl, this.currentMode, (mode) => {
       this.currentMode = mode;
-      this.refresh();
+      void this.refresh();
     });
 
     this.goalPanel = new GoalPanel(headerEl, this.dataService, this.app);
@@ -116,7 +116,7 @@ export class DashboardView extends ItemView {
   private scheduleRefresh(): void {
     if (this.refreshTimer) clearTimeout(this.refreshTimer);
     this.refreshTimer = setTimeout(() => {
-      this.refresh();
+      void this.refresh();
     }, DEBOUNCE_MS);
   }
 
