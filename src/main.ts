@@ -114,7 +114,7 @@ class LifeDashboardSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Daily note 파일명 포맷")
-      .setDesc("날짜 포맷을 moment.js 문법으로 지정합니다 (기본: YYYY-MM-DD ddd)")
+      .setDesc("Specify the date format using Moment.js syntax (default: YYYY-MM-DD ddd)")
       .addText((text) =>
         text
           .setPlaceholder("YYYY-MM-DD ddd")
