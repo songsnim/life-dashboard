@@ -618,3 +618,279 @@
     transform: translateY(-15vh);
   }
 }
+
+/* ===== React Root & App Layout ===== */
+.ld-react-root {
+  display: contents;
+}
+
+.ld-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ld-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ld-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ld-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+}
+
+/* ===== Virtual Table ===== */
+.ld-table-scroll-container {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.ld-table-header-row {
+  background: transparent;
+  border-bottom: 2px solid var(--background-modifier-border);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  user-select: none;
+}
+
+.ld-table-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.ld-table-row:hover {
+  background: var(--background-secondary-alt);
+}
+
+.ld-th {
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  overflow: visible;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-right: 1px solid var(--background-modifier-border);
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.ld-th:active {
+  cursor: grabbing;
+}
+
+/* Label inside th clips text, but doesn't clip the resize handle */
+.ld-th-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ===== Column Resize Handle ===== */
+.ld-col-resize-handle {
+  position: absolute;
+  right: -3px;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 3;
+  /* Center a visible line inside the 6px hit area */
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.ld-col-resize-handle::after {
+  content: "";
+  width: 2px;
+  border-radius: 1px;
+  background: transparent;
+  transition: background 0.15s ease;
+  margin: 4px 0;
+}
+
+/* Show indicator on hover or active drag */
+.ld-th:hover .ld-col-resize-handle::after,
+.ld-col-resize-handle:hover::after,
+.ld-col-resize-handle.active::after {
+  background: var(--interactive-accent);
+}
+
+/* Keep accent color visible while dragging even if cursor leaves the element */
+.ld-col-resize-handle.active {
+  cursor: col-resize;
+}
+.ld-col-resize-handle.active::after {
+  background: var(--interactive-accent);
+  opacity: 0.8;
+}
+
+/* ===== Sort Indicator ===== */
+.ld-sort-indicator {
+  margin-left: 4px;
+  font-size: 0.75em;
+  color: var(--interactive-accent);
+  flex-shrink: 0;
+}
+
+/* ===== Filter Bar ===== */
+.ld-filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+}
+
+.ld-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--background-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--interactive-accent);
+  font-size: 12px;
+}
+
+.ld-filter-chip-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0 2px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.ld-filter-chip-remove:hover {
+  color: var(--text-normal);
+}
+
+.ld-filter-add-btn,
+.ld-filter-clear-btn {
+  background: none;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.ld-filter-add-btn:hover,
+.ld-filter-clear-btn:hover {
+  color: var(--text-normal);
+  border-color: var(--interactive-accent);
+}
+
+.ld-filter-adder {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.ld-filter-adder select,
+.ld-filter-value-input {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  color: var(--text-normal);
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+/* ===== Column Visibility Menu ===== */
+.ld-col-visibility {
+  position: relative;
+}
+
+.ld-col-visibility-btn {
+  background: none;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.ld-col-visibility-btn:hover {
+  color: var(--text-normal);
+  border-color: var(--interactive-accent);
+}
+
+.ld-col-visibility-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 8px;
+  z-index: 100;
+  min-width: 140px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ld-col-visibility-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-normal);
+}
+
+.ld-col-visibility-item:hover {
+  background: var(--background-secondary);
+}
+
+/* ===== DnD drag ghost ===== */
+[data-dnd-dragging="true"] {
+  opacity: 0.5;
+  background: var(--background-modifier-hover);
+}
+
+/* ===== Goal Panel (React version) ===== */
+.ld-goal-panel {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  flex-wrap: wrap;
+}
