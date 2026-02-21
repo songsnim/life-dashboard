@@ -16,8 +16,11 @@ const buildOptions = {
   target: "es2022",
   sourcemap: false,
   treeShaking: true,
+  jsx: "automatic",
+  jsxImportSource: "react",
   define: {
     "process.env.PLUGIN_VERSION": JSON.stringify(manifest.version),
+    "process.env.NODE_ENV": JSON.stringify("production"),
   },
   logLevel: "info",
 };

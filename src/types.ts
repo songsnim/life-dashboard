@@ -1,5 +1,5 @@
 /** 대시보드 뷰 모드 */
-export type ViewMode = "recent" | "weekly" | "monthly" | "yearly";
+export type ViewMode = "15days" | "weekly" | "monthly" | "yearly";
 
 /** Daily Note에서 파싱한 하루치 데이터 */
 export interface DayEntry {
@@ -63,10 +63,52 @@ export interface PluginSettings {
   monthlyFormat: string;
 }
 
-/** 테이블 컬럼 정의 */
+/** 컬럼 타입 */
+export enum ColumnType {
+  DATE = "date",
+  TIME = "time",
+  DURATION = "duration",
+  BOOLEAN = "boolean",
+  NUMBER = "number",
+  TEXT = "text",
+  CHECKLIST = "checklist",
+}
+
+/** 컬럼 정의 */
 export interface ColumnDef {
-  key: keyof DayEntry;
-  label: string;
-  type: "date" | "time" | "boolean" | "number" | "text";
-  editable: boolean;
+  id: string;
+  name: string;                   // Korean display name
+  type: ColumnType;
+  source: "frontmatter" | "body-section" | "computed";
+  frontmatterKey?: string;        // e.g. "취침"
+  entryKey?: keyof DayEntry;      // bridge to DayEntry field
+  width: number;
+  visible: boolean;
+}
+
+/** 필터 규칙 */
+export interface FilterRule {
+  columnId: string;
+  operator: "eq" | "neq" | "gt" | "lt" | "gte" | "lte" | "contains" | "isEmpty";
+  value: string | number | boolean;
+}
+
+/** 정렬 규칙 */
+export interface SortRule {
+  columnId: string;
+  direction: "asc" | "desc";
+}
+
+/** 뷰 설정 */
+export interface ViewConfig {
+  viewMode: ViewMode;
+  columnOrder: string[];
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+/** data.json에 저장되는 뷰 설정 */
+export interface PersistedViewConfig extends ViewConfig {
+  columnWidths: Record<string, number>;
+  columnVisible: Record<string, boolean>;
 }

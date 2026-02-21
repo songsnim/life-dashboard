@@ -1,3 +1,4 @@
+import { ColumnType, ViewConfig } from "./types";
 import type { ColumnDef, PluginSettings } from "./types";
 
 export const VIEW_TYPE_DASHBOARD = "log-day-dashboard";
@@ -20,20 +21,29 @@ export const SLEEP_TARGET_MINUTES = 7 * 60;
 /** 스크린타임 목표 보조선 (분) */
 export const SCREEN_TIME_TARGET_MINUTES = 4 * 60;
 
-/** 테이블 컬럼 순서 */
+/** 테이블 컬럼 정의 (Notion-style) */
 export const TABLE_COLUMNS: ColumnDef[] = [
-  { key: "date", label: "DATE", type: "date", editable: false },
-  { key: "bedtime", label: "취침", type: "time", editable: true },
-  { key: "wakeTime", label: "기상", type: "time", editable: true },
-  // SLEEP (computed) inserted dynamically after 기상
-  { key: "reading", label: "독서", type: "boolean", editable: true },
-  { key: "exercise", label: "운동", type: "boolean", editable: true },
-  { key: "sobriety", label: "금주", type: "boolean", editable: true },
-  { key: "screenTime", label: "스크린", type: "time", editable: true },
-  { key: "tasks", label: "TASKS", type: "text", editable: true },
-  { key: "rating", label: "평가", type: "number", editable: true },
-  { key: "journal", label: "JOURNAL", type: "text", editable: true },
+  { id: "date",           name: "날짜",   type: ColumnType.DATE,      source: "computed",      entryKey: "date",       width: 110, visible: true },
+  { id: "bedtime",        name: "취침",   type: ColumnType.TIME,      source: "frontmatter",   frontmatterKey: "취침", entryKey: "bedtime",    width: 72,  visible: true },
+  { id: "wake-time",      name: "기상",   type: ColumnType.TIME,      source: "frontmatter",   frontmatterKey: "기상", entryKey: "wakeTime",   width: 72,  visible: true },
+  { id: "sleep-duration", name: "수면",   type: ColumnType.DURATION,  source: "computed",      width: 80,  visible: true },
+  { id: "reading",        name: "독서",   type: ColumnType.BOOLEAN,   source: "frontmatter",   frontmatterKey: "독서", entryKey: "reading",    width: 56,  visible: true },
+  { id: "exercise",       name: "운동",   type: ColumnType.BOOLEAN,   source: "frontmatter",   frontmatterKey: "운동", entryKey: "exercise",   width: 56,  visible: true },
+  { id: "sobriety",       name: "금주",   type: ColumnType.BOOLEAN,   source: "frontmatter",   frontmatterKey: "금주", entryKey: "sobriety",   width: 56,  visible: true },
+  { id: "screen-time",    name: "스크린", type: ColumnType.TIME,      source: "frontmatter",   frontmatterKey: "스크린타임", entryKey: "screenTime", width: 72, visible: true },
+  { id: "tasks",          name: "할 일",  type: ColumnType.CHECKLIST, source: "body-section",  entryKey: "tasks",      width: 200, visible: true },
+  { id: "rating",         name: "평가",   type: ColumnType.NUMBER,    source: "frontmatter",   frontmatterKey: "평가", entryKey: "rating",     width: 56,  visible: true },
+  { id: "journal",        name: "저널",   type: ColumnType.TEXT,      source: "body-section",  entryKey: "journal",    width: 240, visible: true },
 ];
+
+export const DEFAULT_COLUMN_ORDER: string[] = TABLE_COLUMNS.map((c) => c.id);
+
+export const DEFAULT_VIEW_CONFIG: ViewConfig = {
+  viewMode: "15days",
+  columnOrder: DEFAULT_COLUMN_ORDER,
+  sorts: [],
+  filters: [],
+};
 
 /** frontmatter에서 읽을 property 키 매핑 (한글 property → DayEntry 필드) */
 export const FRONTMATTER_MAP: Record<string, keyof import("./types").DayEntry> = {
@@ -59,3 +69,9 @@ export const INTERNAL_TO_FRONTMATTER_MAP: Record<string, string> = {
 
 /** body에서 파싱할 섹션 헤더 (Daily Note는 "Todo" 사용, Weekly/Monthly는 "Goal") */
 export const BODY_SECTIONS = ["Todo", "Tasks", "Journal", "Goal"] as const;
+
+/** tasks/journal → 노트 섹션 헤더 매핑 */
+export const SECTION_MAP: Record<string, string> = {
+  tasks: "Todo",
+  journal: "Journal",
+};

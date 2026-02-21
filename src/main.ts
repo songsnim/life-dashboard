@@ -3,6 +3,8 @@ import type { PluginSettings } from "./types";
 import { VIEW_TYPE_DASHBOARD, DEFAULT_SETTINGS } from "./constants";
 import { DashboardView } from "./ui/dashboard-view";
 import { DataService } from "./service";
+import { useDataStore } from "./store/data-store";
+import { useViewStore } from "./store/view-store";
 
 export default class LifeDashboardPlugin extends Plugin {
   settings: PluginSettings = { ...DEFAULT_SETTINGS };
@@ -13,6 +15,20 @@ export default class LifeDashboardPlugin extends Plugin {
     this.dataService = new DataService(this.app);
 
     this.registerView(VIEW_TYPE_DASHBOARD, (leaf) => new DashboardView(leaf, this.settings, this.dataService));
+
+    // Inject save function into view store so Zustand can persist view config
+    useViewStore.getState().injectSaveFn(async () => {
+      const viewConfig = useViewStore.getState().serialize();
+      await this.saveData({ ...this.settings, viewConfig });
+    });
+
+    // Hydrate view config from saved data
+    const data = await this.loadData();
+    if (data?.viewConfig) {
+      useViewStore.getState().hydrate(data.viewConfig);
+    }
+    // Merge settings separately (avoid overwriting with viewConfig keys)
+    this.settings = { ...DEFAULT_SETTINGS, ...(data ?? {}) };
 
     this.addRibbonIcon("layout-dashboard", "Life dashboard", () => {
       void this.activateView();
@@ -28,7 +44,9 @@ export default class LifeDashboardPlugin extends Plugin {
   }
 
   onunload(): void {
-    // leaves는 detach하지 않는다 — 플러그인 업데이트 시 기존 위치에서 재초기화됨
+    // Reset store state so hot-reload doesn't leave stale data
+    useDataStore.getState().setEntries([]);
+    useDataStore.getState().setGoals(null, null);
   }
 
   async activateView(): Promise<void> {
@@ -49,9 +67,10 @@ export default class LifeDashboardPlugin extends Plugin {
   }
 
   async saveSettings(): Promise<void> {
-    await this.saveData(this.settings);
+    const viewConfig = useViewStore.getState().serialize();
+    await this.saveData({ ...this.settings, viewConfig });
 
-    // 열려있는 뷰에 설정 변경 반영
+    // Propagate settings change to open views
     for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD)) {
       const view = leaf.view;
       if (view instanceof DashboardView) {

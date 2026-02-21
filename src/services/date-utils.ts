@@ -11,7 +11,7 @@ export function getDateRange(mode: ViewMode, refDate: Date = new Date()): [strin
   const end = formatDate(refDate);
 
   switch (mode) {
-    case "recent": {
+    case "15days": {
       const start = new Date(refDate);
       start.setDate(start.getDate() - RECENT_DAYS + 1);
       return [formatDate(start), end];
