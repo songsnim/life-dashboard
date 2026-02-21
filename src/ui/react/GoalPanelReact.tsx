@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import type { GoalEntry } from "../../types";
 import { useViewStore } from "../../store/view-store";
+import { useDataStore } from "../../store/data-store";
 import { useAppContext } from "./context";
 
 interface GoalItem {
@@ -36,11 +37,28 @@ function GoalSection({ goalEntry, label }: GoalSectionProps) {
   const [addText, setAddText] = useState("");
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
 
+  // Track last synced content to detect external file changes (e.g., direct note edits or refresh)
+  const lastSyncedContent = useRef(goalEntry.content);
+
+  useEffect(() => {
+    if (goalEntry.content !== lastSyncedContent.current) {
+      lastSyncedContent.current = goalEntry.content;
+      setGoals(parseGoals(goalEntry.content));
+    }
+  }, [goalEntry]);
+
   const persist = useCallback(
     async (nextGoals: GoalItem[]) => {
       const newContent = serializeGoals(nextGoals);
-      goalEntry.content = newContent;
-      await noteWriter.updateGoal({ ...goalEntry, content: newContent });
+      // Track that we wrote this content so the sync effect ignores our own write
+      lastSyncedContent.current = newContent;
+      const { incrementPendingWrites, decrementPendingWrites } = useDataStore.getState();
+      incrementPendingWrites();
+      try {
+        await noteWriter.updateGoal({ ...goalEntry, content: newContent });
+      } finally {
+        decrementPendingWrites();
+      }
     },
     [goalEntry, noteWriter],
   );
@@ -116,7 +134,9 @@ function GoalSection({ goalEntry, label }: GoalSectionProps) {
           value={addText}
           onChange={(e) => setAddText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            // e.nativeEvent.isComposing: true when Korean/CJK IME is mid-composition
+            // Prevent handleAdd() from firing on the composition-commit Enter press
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
               e.preventDefault();
               handleAdd();
             }
@@ -149,7 +169,7 @@ function GoalEditInput({
       onChange={(e) => setVal(e.target.value)}
       onBlur={() => onSave(val)}
       onKeyDown={(e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !e.nativeEvent.isComposing) {
           e.preventDefault();
           onSave(val);
         }

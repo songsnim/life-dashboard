@@ -59,7 +59,8 @@ export class NoteWriter {
     );
 
     if (regex.test(content)) {
-      return content.replace(regex, `### ${sectionName}\n${newText.trim()}`);
+      // Trailing \n ensures the next ### header stays on its own line after replacement
+      return content.replace(regex, `### ${sectionName}\n${newText.trim()}\n`);
     }
 
     // 섹션이 없으면 파일 끝에 추가
