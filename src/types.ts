@@ -1,5 +1,8 @@
 /** 대시보드 뷰 모드 */
-export type ViewMode = "15days" | "weekly" | "monthly" | "yearly";
+export type ViewMode = "weekly" | "monthly" | "yearly";
+
+/** 날짜 범위 프리셋 */
+export type DateRangePreset = "7days" | "15days" | "week" | "month" | "year" | null;
 
 /** Daily Note에서 파싱한 하루치 데이터 */
 export interface DayEntry {
@@ -55,12 +58,24 @@ export interface PluginSettings {
   weeklyNotesFolder: string;
   /** Monthly Notes 폴더 경로 */
   monthlyNotesFolder: string;
+  /** Yearly Notes 폴더 경로 */
+  yearlyNotesFolder: string;
   /** Daily Note 파일명 포맷 (moment.js) */
   dailyFormat: string;
   /** Weekly Note 파일명 포맷 */
   weeklyFormat: string;
   /** Monthly Note 파일명 포맷 */
   monthlyFormat: string;
+}
+
+/** Bulk Goal 항목 (파일이 없을 수도 있음) */
+export interface GoalBulkEntry {
+  /** 파일명 (확장자 제외, e.g. "2026 Week 05") */
+  period: string;
+  /** 표시용 레이블 (e.g. "W05 (01/26~02/01)") */
+  label: string;
+  /** 파일이 없으면 null */
+  goal: GoalEntry | null;
 }
 
 /** 컬럼 타입 */
@@ -102,6 +117,7 @@ export interface SortRule {
 /** 뷰 설정 */
 export interface ViewConfig {
   viewMode: ViewMode;
+  dateRangePreset: DateRangePreset;
   columnOrder: string[];
   sorts: SortRule[];
   filters: FilterRule[];

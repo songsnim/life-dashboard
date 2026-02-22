@@ -7,6 +7,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   dailyNotesFolder: "Area/Daily/Days",
   weeklyNotesFolder: "Area/Daily/Weeks",
   monthlyNotesFolder: "Area/Daily/Months",
+  yearlyNotesFolder: "Area/Daily/Years",
   dailyFormat: "YYYY-MM-DD ddd",
   weeklyFormat: "YYYY [Week] WW",
   monthlyFormat: "YYYY-MM",
@@ -39,7 +40,8 @@ export const TABLE_COLUMNS: ColumnDef[] = [
 export const DEFAULT_COLUMN_ORDER: string[] = TABLE_COLUMNS.map((c) => c.id);
 
 export const DEFAULT_VIEW_CONFIG: ViewConfig = {
-  viewMode: "15days",
+  viewMode: "weekly",
+  dateRangePreset: "15days",
   columnOrder: DEFAULT_COLUMN_ORDER,
   sorts: [],
   filters: [],

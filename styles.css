@@ -1,21 +1,39 @@
 /* ===== Life Dashboard — ld- prefixed, matching existing dashboard-bundle.js style ===== */
 
+/* ---------- Transparency: make Obsidian leaf container transparent ---------- */
+/*
+ * Obsidian's .view-content has an opaque background by default.
+ * Targeting only our plugin's leaf via :has() makes the background image visible
+ * through the semi-transparent glass modules below.
+ */
+.view-content:has(.ld-container) {
+  background: transparent !important;
+}
+
 /* ---------- Container ---------- */
 .ld-container {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  background: transparent;
 }
 
 /* ---------- Header (view switcher + goals) ---------- */
 .ld-header {
   display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 20px;
+  flex-direction: column;
+  gap: 8px;
   padding: 12px 16px;
   flex-shrink: 0;
+  background: transparent;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.18);
+}
+
+.ld-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* ---------- View Switcher ---------- */
@@ -41,24 +59,30 @@
 }
 
 .ld-view-btn {
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
   cursor: pointer;
-  font-weight: 600;
-  border: none;
-  font-size: 0.8em;
-  background: transparent;
+  font-weight: 700;
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  background: color-mix(in srgb, var(--background-secondary) 35%, transparent);
   color: var(--text-muted);
+  transition: all 0.15s ease;
+  backdrop-filter: blur(4px);
 }
 
 .ld-view-btn:hover {
-  background: var(--background-modifier-hover);
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--interactive-accent) 50%, transparent);
   color: var(--text-normal);
 }
 
-.ld-view-btn--active {
+.ld-view-btn.active {
   background: var(--interactive-accent);
   color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 25%, transparent);
 }
 
 /* ---------- Goal Panel ---------- */
@@ -496,11 +520,13 @@
 
 .ld-goal-edit-input {
   flex-grow: 1;
-  background: var(--background-secondary);
-  border: 1px solid var(--interactive-accent);
-  border-radius: 4px;
-  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--interactive-accent);
+  border-radius: 0;
+  padding: 2px 4px;
   color: var(--text-normal);
+  outline: none;
 }
 
 .ld-goal-delete {
@@ -518,66 +544,125 @@
   opacity: 1;
 }
 
-.ld-goal-add-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
+/* Goal add trigger — subtle '+' button at bottom of goal list */
+.ld-goal-add-trigger {
+  margin-top: 6px;
+  padding: 3px 8px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-faint);
+  transition: all 0.15s;
+  line-height: 1.4;
 }
 
-.ld-goal-add-input {
-  flex-grow: 1;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  padding: 4px 8px;
-  color: var(--text-normal);
+.ld-goal-add-trigger:hover {
+  color: var(--text-muted);
+  border-color: rgba(128, 128, 128, 0.35);
+  background: rgba(128, 128, 128, 0.06);
+}
+
+/* 모바일 접힘 상태 인라인 목표 미리보기 */
+.ld-collapsible-preview {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  flex: 1;
+  min-width: 0;
+  pointer-events: auto;
+}
+
+.ld-collapsible-preview-text {
+  font-size: 0.82em;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.ld-collapsible-preview-text.ld-goal-done {
+  text-decoration: line-through;
+  opacity: 0.55;
 }
 
 /* ---------- Mobile Responsive ---------- */
+/*
+ * 모바일 키보드 대응 레이아웃 전략:
+ *
+ * 문제: 키보드 열림 → viewport 높이 축소 → container(height:100%) 축소
+ *       header(flex-shrink:0)가 고정 높이를 유지하면서 body 영역을 밀어냄
+ *       → body가 container 밖으로 밀려 overflow:clip에 의해 잘림 → 화면 90% 사라짐
+ *
+ * 해결:
+ *  1) header → overflow-y:auto + max-height:45vh
+ *     키보드 열릴 때 header가 viewport의 45% 이상을 차지하지 않도록 제한.
+ *     goal 패널 내용은 header 내에서 스크롤 가능.
+ *  2) header → flex-shrink:1
+ *     필요 시 header가 줄어들 수 있도록 허용.
+ *  3) body → flex-shrink:0 (항상 최소 공간 확보)
+ *  4) container → overflow:clip (body가 container를 넘칠 수 있게, scroll port 생성 방지)
+ *
+ * NOTE: @media (max-width: 768px)는 Obsidian 모바일 webview에서 발동하지 않을 수 있음.
+ *       Obsidian은 모바일에서 document.body에 .is-mobile 클래스를 추가하므로
+ *       body.is-mobile 셀렉터를 함께 사용한다.
+ */
+
+/* Obsidian .is-mobile (미디어쿼리 비발동 시 폴백) */
+body.is-mobile .ld-container {
+  overflow: clip;
+}
+
+body.is-mobile .ld-header {
+  padding: 8px 12px;
+  gap: 6px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 1;
+  max-height: 45vh;
+}
+
+body.is-mobile .ld-goal-panel {
+  min-width: 0;
+}
+
+body.is-mobile .ld-body {
+  min-height: 200px;
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
-  /*
-   * 키보드가 올라오면 Obsidian leaf가 높이를 줄인다.
-   * container(height:100%)도 줄어든 뒤 header(flex-shrink:0)가 공간을 먹으면
-   * body(flex:1)가 0px로 쪼그라들어 chart+table이 사라진다.
-   *
-   * 해결:
-   *  1) container → overflow:clip  (스크롤 포트를 만들지 않음)
-   *  2) body → flex-shrink:0 + min-height  (절대 축소 안 됨)
-   *  3) body → overflow-y:auto  (body 안에서만 스크롤)
-   *
-   * body가 container를 넘칠 수 있지만 clip이 시각적으로 잘라낼 뿐
-   * body 내부의 스크롤은 정상 동작한다.
-   */
   .ld-container {
     overflow: clip;
   }
 
   .ld-header {
-    flex-wrap: nowrap;
     padding: 8px 12px;
-    gap: 10px;
+    gap: 6px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 1;
+    max-height: 45vh;
   }
 
   .ld-goal-panel {
     min-width: 0;
-    overflow: clip;
   }
 
   .ld-body {
+    min-height: 200px;
     flex-shrink: 0;
-    min-height: 300px;
-    overflow-y: auto;
-    overflow-x: hidden;
   }
 
-  .ld-table-wrapper {
-    flex: none;
-    min-height: unset;
-    overflow: visible;
-  }
-
-  .ld-scroll-container {
-    height: auto;
+  .ld-table-h-scroll {
+    /* 모바일에서도 가로 스크롤 유지 */
+    overflow-x: auto;
   }
 
   .ld-chart-wrapper {
@@ -635,13 +720,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .ld-body {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* 세로 스크롤: chart + filter + table 전체를 함께 스크롤 */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .ld-loading {
@@ -653,30 +742,39 @@
 }
 
 /* ===== Virtual Table ===== */
-.ld-table-scroll-container {
-  flex: 1;
-  overflow: auto;
-  position: relative;
+
+/**
+ * 가로 스크롤만 처리하는 테이블 래퍼.
+ * 세로 스크롤은 .ld-body 가 담당한다.
+ * overflow-y: clip → CSS sticky 가 상위 .ld-body 기준으로 동작하게 함.
+ */
+.ld-table-h-scroll {
+  overflow-x: auto;
+  overflow-y: clip;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
 }
 
 .ld-table-header-row {
-  background: transparent;
-  border-bottom: 2px solid var(--background-modifier-border);
+  /* .ld-body 세로 스크롤 기준으로 상단 고정 */
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 10;
   display: flex;
   user-select: none;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+  background: transparent;
 }
 
 .ld-table-row {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--background-modifier-border);
+  border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
+  transition: background 0.12s ease;
 }
 
 .ld-table-row:hover {
-  background: var(--background-secondary-alt);
+  background: color-mix(in srgb, var(--interactive-accent) 6%, transparent);
 }
 
 .ld-th {
@@ -762,10 +860,21 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 6px 16px;
-  border-bottom: 1px solid var(--background-modifier-border);
+  gap: 6px;
+  padding: 5px 16px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.18);
   flex-shrink: 0;
+  background: transparent;
+}
+
+/* Vertical separator between filter controls and date preset pills */
+.ld-filter-sep {
+  width: 1px;
+  height: 14px;
+  background: rgba(128, 128, 128, 0.30);
+  flex-shrink: 0;
+  align-self: center;
+  margin: 0 2px;
 }
 
 .ld-filter-chip {
@@ -773,10 +882,11 @@
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: var(--background-secondary);
-  border-radius: 12px;
-  border: 1px solid var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--interactive-accent) 50%, transparent);
   font-size: 12px;
+  backdrop-filter: blur(4px);
 }
 
 .ld-filter-chip-remove {
@@ -795,29 +905,33 @@
 
 .ld-filter-add-btn,
 .ld-filter-clear-btn {
-  background: none;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  padding: 2px 8px;
+  background: color-mix(in srgb, var(--background-secondary) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 60%, transparent);
+  border-radius: 20px;
+  padding: 2px 9px;
   font-size: 12px;
   cursor: pointer;
   color: var(--text-muted);
+  transition: all 0.15s;
+  backdrop-filter: blur(4px);
 }
 
 .ld-filter-add-btn:hover,
 .ld-filter-clear-btn:hover {
   color: var(--text-normal);
-  border-color: var(--interactive-accent);
+  border-color: color-mix(in srgb, var(--interactive-accent) 60%, transparent);
+  background: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
 }
 
 .ld-filter-adder {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  background: color-mix(in srgb, var(--background-secondary) 75%, transparent);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
+  border-radius: 8px;
   padding: 4px 8px;
+  backdrop-filter: blur(8px);
 }
 
 .ld-filter-adder select,
@@ -836,34 +950,39 @@
 }
 
 .ld-col-visibility-btn {
-  background: none;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  padding: 4px 10px;
-  font-size: 12px;
+  background: color-mix(in srgb, var(--background-secondary) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 55%, transparent);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
   cursor: pointer;
   color: var(--text-muted);
+  transition: all 0.15s;
+  backdrop-filter: blur(4px);
 }
 
 .ld-col-visibility-btn:hover {
   color: var(--text-normal);
-  border-color: var(--interactive-accent);
+  border-color: color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
 }
 
 .ld-col-visibility-menu {
   position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
+  top: calc(100% + 6px);
+  right: 0;
+  background: color-mix(in srgb, var(--background-primary) 88%, transparent);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 45%, transparent);
+  border-radius: 10px;
   padding: 8px;
   z-index: 100;
-  min-width: 140px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 150px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), inset 0 0.5px 0 rgba(255,255,255,0.06);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .ld-col-visibility-item {
@@ -889,8 +1008,159 @@
 
 /* ===== Goal Panel (React version) ===== */
 .ld-goal-panel {
+  width: 100%;
+}
+
+.ld-goal-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.ld-goal-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 8px;
+}
+
+/* Mobile single-column — applied via JS isMobile check */
+.ld-goal-grid-1 {
   display: flex;
-  flex-direction: row;
-  gap: 16px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ===== Collapsible Goal Group ===== */
+.ld-collapsible {
+  background: transparent;
+  border: 1px solid rgba(128, 128, 128, 0.20);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ld-collapsible-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  text-align: left;
+  transition: color 0.15s;
+}
+
+.ld-collapsible-header:hover {
+  color: var(--text-normal);
+}
+
+.ld-collapsible-arrow {
+  font-size: 8px;
+  flex-shrink: 0;
+  color: var(--text-faint);
+  transition: transform 0.15s;
+}
+
+.ld-collapsible-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ld-collapsible-body {
+  padding: 8px 10px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* ===== Bulk Goal List (month/year sub-sections) ===== */
+.ld-bulk-goal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ld-bulk-goal-entry {
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 8px;
+}
+
+.ld-bulk-goal-entry:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.ld-bulk-goal-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-accent);
+  margin-bottom: 4px;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.ld-no-file {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ===== Date Preset Bar ===== */
+.ld-date-preset-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   flex-wrap: wrap;
+}
+
+.ld-date-preset-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-faint);
+  margin-right: 2px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ld-date-preset-btn {
+  padding: 2px 9px;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 60%, transparent);
+  background: color-mix(in srgb, var(--background-secondary) 40%, transparent);
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  backdrop-filter: blur(4px);
+}
+
+.ld-date-preset-btn:hover {
+  border-color: color-mix(in srgb, var(--interactive-accent) 60%, transparent);
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+  color: var(--text-normal);
+}
+
+.ld-date-preset-btn.active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 25%, transparent);
+}
+
+/* Completed goal text */
+.ld-goal-done {
+  text-decoration: line-through;
+  color: var(--text-muted);
 }

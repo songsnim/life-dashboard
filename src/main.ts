@@ -46,7 +46,7 @@ export default class LifeDashboardPlugin extends Plugin {
   onunload(): void {
     // Reset store state so hot-reload doesn't leave stale data
     useDataStore.getState().setEntries([]);
-    useDataStore.getState().setGoals(null, null);
+    useDataStore.getState().setGoals(null, null, null);
   }
 
   async activateView(): Promise<void> {
@@ -127,6 +127,19 @@ class LifeDashboardSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.monthlyNotesFolder)
           .onChange((value) => {
             this.plugin.settings.monthlyNotesFolder = value.trim();
+            void this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName("Yearly notes 폴더")
+      .setDesc("Yearly note 파일들이 위치한 폴더 경로 (파일명: 연도, e.g. 2026.md)")
+      .addText((text) =>
+        text
+          .setPlaceholder("Area/Daily/Years")
+          .setValue(this.plugin.settings.yearlyNotesFolder)
+          .onChange((value) => {
+            this.plugin.settings.yearlyNotesFolder = value.trim();
             void this.plugin.saveSettings();
           }),
       );

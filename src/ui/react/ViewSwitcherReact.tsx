@@ -3,7 +3,6 @@ import type { ViewMode } from "../../types";
 import { useViewStore } from "../../store/view-store";
 
 const MODES: { mode: ViewMode; label: string }[] = [
-  { mode: "15days", label: "15" },
   { mode: "weekly", label: "W" },
   { mode: "monthly", label: "M" },
   { mode: "yearly", label: "Y" },

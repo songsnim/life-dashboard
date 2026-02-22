@@ -1,8 +1,44 @@
 import React, { useState, useRef, useEffect } from "react";
-import type { FilterRule } from "../../types";
+import type { FilterRule, DateRangePreset } from "../../types";
 import { ColumnType } from "../../types";
 import { TABLE_COLUMNS } from "../../constants";
 import { useViewStore } from "../../store/view-store";
+
+/* ===== DatePresetBar ===== */
+
+interface PresetOption {
+  preset: DateRangePreset;
+  label: string;
+}
+
+const PRESET_OPTIONS: PresetOption[] = [
+  { preset: "7days", label: "최근 7일" },
+  { preset: "15days", label: "최근 15일" },
+  { preset: "week", label: "이번 주" },
+  { preset: "month", label: "이번 달" },
+  { preset: "year", label: "올해" },
+  { preset: null, label: "전체" },
+];
+
+export function DatePresetBar() {
+  const dateRangePreset = useViewStore((s) => s.config.dateRangePreset);
+  const { setDateRangePreset } = useViewStore();
+
+  return (
+    <div className="ld-date-preset-bar">
+      <span className="ld-date-preset-label">날짜:</span>
+      {PRESET_OPTIONS.map(({ preset, label }) => (
+        <button
+          key={String(preset)}
+          className={`ld-date-preset-btn${dateRangePreset === preset ? " active" : ""}`}
+          onClick={() => setDateRangePreset(preset)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 type Operator = FilterRule["operator"];
 
@@ -36,20 +72,30 @@ function getOperatorsForType(type: ColumnType): Operator[] {
   }
 }
 
+/* ===== DatePresetPills (inline, no wrapper div) ===== */
+
+function DatePresetPills() {
+  const dateRangePreset = useViewStore((s) => s.config.dateRangePreset);
+  const { setDateRangePreset } = useViewStore();
+  return (
+    <>
+      {PRESET_OPTIONS.map(({ preset, label }) => (
+        <button
+          key={String(preset)}
+          className={`ld-date-preset-btn${dateRangePreset === preset ? " active" : ""}`}
+          onClick={() => setDateRangePreset(preset)}
+        >
+          {label}
+        </button>
+      ))}
+    </>
+  );
+}
+
 export function FilterBar() {
   const filters = useViewStore((s) => s.config.filters);
   const { removeFilter, clearFilters, addFilter } = useViewStore();
   const [showAdder, setShowAdder] = useState(false);
-
-  if (filters.length === 0 && !showAdder) {
-    return (
-      <div className="ld-filter-bar">
-        <button className="ld-filter-add-btn" onClick={() => setShowAdder(true)}>
-          + 필터
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="ld-filter-bar">
@@ -82,6 +128,8 @@ export function FilterBar() {
           + 필터
         </button>
       )}
+      <span className="ld-filter-sep" />
+      <DatePresetPills />
     </div>
   );
 }

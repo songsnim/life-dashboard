@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { DayEntry, GoalEntry, FilterRule, SortRule } from "../types";
+import type { DayEntry, GoalEntry, GoalBulkEntry, FilterRule, SortRule } from "../types";
 import { ColumnType } from "../types";
 import { TABLE_COLUMNS } from "../constants";
 import { calcSleepMinutes, parseTimeToMinutes } from "../services/date-utils";
@@ -8,12 +8,21 @@ interface DataState {
   entries: DayEntry[];
   weeklyGoal: GoalEntry | null;
   monthlyGoal: GoalEntry | null;
+  yearlyGoal: GoalEntry | null;
+  /** 이번 달에 속하는 주간 goal (monthly view 전용) */
+  monthWeeklyGoals: GoalBulkEntry[];
+  /** 올해 12개 월간 goal (yearly view 전용) */
+  yearMonthlyGoals: GoalBulkEntry[];
+  /** 올해 모든 주간 goal (yearly view 전용) */
+  yearWeeklyGoals: GoalBulkEntry[];
   isLoading: boolean;
   pendingWrites: number;
 
   // Actions
   setEntries: (entries: DayEntry[]) => void;
-  setGoals: (weekly: GoalEntry | null, monthly: GoalEntry | null) => void;
+  setGoals: (weekly: GoalEntry | null, monthly: GoalEntry | null, yearly: GoalEntry | null) => void;
+  setMonthWeeklyGoals: (goals: GoalBulkEntry[]) => void;
+  setYearGoals: (monthlyGoals: GoalBulkEntry[], weeklyGoals: GoalBulkEntry[]) => void;
   setLoading: (loading: boolean) => void;
   incrementPendingWrites: () => void;
   decrementPendingWrites: () => void;
@@ -104,11 +113,17 @@ export const useDataStore = create<DataState>((set, get) => ({
   entries: [],
   weeklyGoal: null,
   monthlyGoal: null,
+  yearlyGoal: null,
+  monthWeeklyGoals: [],
+  yearMonthlyGoals: [],
+  yearWeeklyGoals: [],
   isLoading: false,
   pendingWrites: 0,
 
   setEntries: (entries) => set({ entries }),
-  setGoals: (weekly, monthly) => set({ weeklyGoal: weekly, monthlyGoal: monthly }),
+  setGoals: (weekly, monthly, yearly) => set({ weeklyGoal: weekly, monthlyGoal: monthly, yearlyGoal: yearly }),
+  setMonthWeeklyGoals: (goals) => set({ monthWeeklyGoals: goals }),
+  setYearGoals: (monthlyGoals, weeklyGoals) => set({ yearMonthlyGoals: monthlyGoals, yearWeeklyGoals: weeklyGoals }),
   setLoading: (isLoading) => set({ isLoading }),
   incrementPendingWrites: () => set((s) => ({ pendingWrites: s.pendingWrites + 1 })),
   decrementPendingWrites: () => set((s) => ({ pendingWrites: Math.max(0, s.pendingWrites - 1) })),
