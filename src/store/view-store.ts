@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { arrayMove } from "@dnd-kit/sortable";
-import type { ViewConfig, PersistedViewConfig, FilterRule, ViewMode } from "../types";
+import type { ViewConfig, PersistedViewConfig, FilterRule, ViewMode, DateRangePreset } from "../types";
 import { DEFAULT_VIEW_CONFIG, TABLE_COLUMNS } from "../constants";
 
 interface ViewState {
@@ -16,6 +16,7 @@ interface ViewState {
 
   // View mode
   setViewMode: (mode: ViewMode) => void;
+  setDateRangePreset: (preset: DateRangePreset) => void;
 
   // Column order
   setColumnOrder: (order: string[]) => void;
@@ -64,12 +65,19 @@ export const useViewStore = create<ViewState>((set, get) => ({
   },
 
   hydrate: (saved) => {
-    // Migrate "recent" → "15days"
-    const viewMode = saved.viewMode === ("recent" as string) ? "15days" : saved.viewMode;
+    // Migrate "recent" / "15days" → viewMode="weekly", preset="15days"
+    let viewMode: ViewMode = saved.viewMode;
+    let dateRangePreset: DateRangePreset = saved.dateRangePreset ?? "15days";
+
+    if ((saved.viewMode as string) === "recent" || (saved.viewMode as string) === "15days") {
+      viewMode = "weekly";
+      dateRangePreset = "15days";
+    }
 
     set({
       config: {
         viewMode,
+        dateRangePreset,
         columnOrder: saved.columnOrder?.length ? saved.columnOrder : DEFAULT_VIEW_CONFIG.columnOrder,
         sorts: saved.sorts ?? [],
         filters: saved.filters ?? [],
@@ -89,7 +97,19 @@ export const useViewStore = create<ViewState>((set, get) => ({
   },
 
   setViewMode: (mode) => {
-    set((s) => ({ config: { ...s.config, viewMode: mode } }));
+    set((s) => {
+      const newConfig = { ...s.config, viewMode: mode };
+      // Auto-set default preset per view mode
+      if (mode === "monthly") newConfig.dateRangePreset = "month";
+      else if (mode === "yearly") newConfig.dateRangePreset = "year";
+      else if (mode === "weekly") newConfig.dateRangePreset = "15days";
+      return { config: newConfig };
+    });
+    triggerSaveImpl();
+  },
+
+  setDateRangePreset: (preset) => {
+    set((s) => ({ config: { ...s.config, dateRangePreset: preset } }));
     triggerSaveImpl();
   },
 

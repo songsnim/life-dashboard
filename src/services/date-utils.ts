@@ -1,5 +1,4 @@
-import type { ViewMode } from "../types";
-import { RECENT_DAYS } from "../constants";
+import type { ViewMode, DateRangePreset } from "../types";
 
 /**
  * 뷰 모드에 따른 날짜 범위 계산 유틸리티.
@@ -8,14 +7,7 @@ import { RECENT_DAYS } from "../constants";
 
 /** 뷰 모드에 따른 [startDate, endDate] (YYYY-MM-DD) 반환 */
 export function getDateRange(mode: ViewMode, refDate: Date = new Date()): [string, string] {
-  const end = formatDate(refDate);
-
   switch (mode) {
-    case "15days": {
-      const start = new Date(refDate);
-      start.setDate(start.getDate() - RECENT_DAYS + 1);
-      return [formatDate(start), end];
-    }
     case "weekly": {
       const start = getWeekStart(refDate);
       const weekEnd = new Date(start);
@@ -31,6 +23,42 @@ export function getDateRange(mode: ViewMode, refDate: Date = new Date()): [strin
       const start = new Date(refDate.getFullYear(), 0, 1);
       const yearEnd = new Date(refDate.getFullYear(), 11, 31);
       return [formatDate(start), formatDate(yearEnd)];
+    }
+  }
+}
+
+/**
+ * 날짜 범위 프리셋에 따른 [startDate, endDate] (YYYY-MM-DD) 반환.
+ * null 프리셋은 "전체"를 의미하며 null을 반환 (호출자가 별도 처리).
+ */
+export function getPresetDateRange(preset: DateRangePreset, refDate: Date = new Date()): [string, string] | null {
+  if (preset === null) return null;
+  switch (preset) {
+    case "7days": {
+      const start = new Date(refDate);
+      start.setDate(start.getDate() - 6);
+      return [formatDate(start), formatDate(refDate)];
+    }
+    case "15days": {
+      const start = new Date(refDate);
+      start.setDate(start.getDate() - 14);
+      return [formatDate(start), formatDate(refDate)];
+    }
+    case "week": {
+      const start = getWeekStart(refDate);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      return [formatDate(start), formatDate(end)];
+    }
+    case "month": {
+      const start = new Date(refDate.getFullYear(), refDate.getMonth(), 1);
+      const end = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0);
+      return [formatDate(start), formatDate(end)];
+    }
+    case "year": {
+      const start = new Date(refDate.getFullYear(), 0, 1);
+      const end = new Date(refDate.getFullYear(), 11, 31);
+      return [formatDate(start), formatDate(end)];
     }
   }
 }
@@ -140,6 +168,83 @@ export function weeklyNoteFileName(refDate: Date = new Date()): string {
 /** 현재 날짜 기준 Monthly Note 파일명 (e.g. "2024-01") */
 export function monthlyNoteFileName(refDate: Date = new Date()): string {
   return `${refDate.getFullYear()}-${(refDate.getMonth() + 1).toString().padStart(2, "0")}`;
+}
+
+/** 현재 날짜 기준 Yearly Note 파일명 (e.g. "2026") */
+export function yearlyNoteFileName(refDate: Date = new Date()): string {
+  return `${refDate.getFullYear()}`;
+}
+
+/** ISO 주차(週次) 연도 계산 — 달력 연도와 다를 수 있음 */
+function getISOWeekYear(d: Date): number {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+  return date.getUTCFullYear();
+}
+
+/**
+ * 해당 달에 속하는 모든 ISO 주차 목록 반환.
+ * 달의 하루라도 포함된 주를 모두 포함.
+ */
+export function getWeeksInMonth(year: number, month: number): { weekYear: number; weekNum: number }[] {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const seen = new Set<string>();
+  const result: { weekYear: number; weekNum: number }[] = [];
+
+  const current = new Date(firstDay);
+  while (current <= lastDay) {
+    const weekYear = getISOWeekYear(current);
+    const weekNum = getISOWeekNumber(current);
+    const key = `${weekYear}-${weekNum}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      result.push({ weekYear, weekNum });
+    }
+    current.setDate(current.getDate() + 1);
+  }
+
+  return result.sort((a, b) => a.weekNum - b.weekNum);
+}
+
+/**
+ * 주어진 연도의 ISO 주차 번호 목록 반환 (1 ~ 52 또는 53).
+ * Dec 28은 항상 해당 연도의 마지막 ISO 주에 속한다.
+ */
+export function getAllWeeksInYear(year: number): number[] {
+  const dec28 = new Date(year, 11, 28);
+  const lastWeek = getISOWeekNumber(dec28);
+  return Array.from({ length: lastWeek }, (_, i) => i + 1);
+}
+
+/**
+ * 연도 + ISO 주차 번호 → 해당 주의 월요일 Date 반환.
+ */
+export function getWeekStartFromWeekNumber(weekYear: number, weekNum: number): Date {
+  // Jan 4 is always in ISO week 1 of weekYear
+  const jan4 = new Date(Date.UTC(weekYear, 0, 4));
+  const dayOfWeek = jan4.getUTCDay() || 7; // 1=Mon … 7=Sun
+  const mondayOfWeek1 = new Date(jan4);
+  mondayOfWeek1.setUTCDate(jan4.getUTCDate() - dayOfWeek + 1);
+
+  const result = new Date(mondayOfWeek1);
+  result.setUTCDate(result.getUTCDate() + (weekNum - 1) * 7);
+  // Return local Date (no UTC offset shift)
+  return new Date(result.getUTCFullYear(), result.getUTCMonth(), result.getUTCDate());
+}
+
+/**
+ * 주차 라벨 생성: "W05 (01/26~02/01)"
+ */
+export function getWeekRangeLabel(weekYear: number, weekNum: number): string {
+  const start = getWeekStartFromWeekNumber(weekYear, weekNum);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+
+  const wkStr = weekNum.toString().padStart(2, "0");
+  const startStr = `${(start.getMonth() + 1).toString().padStart(2, "0")}/${start.getDate().toString().padStart(2, "0")}`;
+  const endStr = `${(end.getMonth() + 1).toString().padStart(2, "0")}/${end.getDate().toString().padStart(2, "0")}`;
+  return `W${wkStr} (${startStr}~${endStr})`;
 }
 
 /** ISO week number 계산 */
