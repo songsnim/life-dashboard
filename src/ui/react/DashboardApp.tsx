@@ -71,6 +71,28 @@ function DashboardInner() {
     const vv = window.visualViewport;
     if (!vv) return;
 
+    const el = appRef.current;
+    if (!el) return;
+
+    /**
+     * .ld-app은 position:fixed이므로 viewport 기준으로 배치된다.
+     * Obsidian 모바일은 상단에 상태바(배터리/시간)와 네이티브 헤더(explorer/파일명/설정)
+     * 영역이 있으므로, .view-content의 실제 시작 y좌표를 top으로 적용해야 한다.
+     *
+     * 키보드가 없을 때: top = viewContentTop, translateY = ""
+     * 키보드가 있을 때: top = viewContentTop, translateY(keyboard offset) 으로 pan 보정
+     */
+    const viewContent = el.closest(".view-content");
+    const getContainerTop = () =>
+      viewContent ? viewContent.getBoundingClientRect().top : 0;
+
+    // 초기 top 설정 (Obsidian 헤더 높이만큼 내려놓기)
+    const applyTop = () => {
+      const top = getContainerTop();
+      el.style.top = top > 0 ? `${top}px` : "0px";
+    };
+    applyTop();
+
     let rafId: ReturnType<typeof requestAnimationFrame> | null = null;
 
     const update = () => {
@@ -78,8 +100,8 @@ function DashboardInner() {
       if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
         rafId = null;
-        const el = appRef.current;
-        if (!el) return;
+        const currentEl = appRef.current;
+        if (!currentEl) return;
 
         /**
          * .ld-app은 CSS에서 body.is-mobile 시 position:fixed 로 지정되므로
@@ -97,7 +119,7 @@ function DashboardInner() {
             ? vv.offsetTop                       // iOS / Android doc-scroll pan
             : window.innerHeight - vv.height;    // Android window-pan  /  adjustResize=0
 
-        el.style.transform = offset > 0 ? `translateY(${offset}px)` : "";
+        currentEl.style.transform = offset > 0 ? `translateY(${offset}px)` : "";
       });
     };
 
@@ -105,6 +127,8 @@ function DashboardInner() {
     vv.addEventListener("scroll", update);
     // document scroll 폴백 (일부 Android WebView에서 vv.scroll 미발화)
     window.addEventListener("scroll", update, { passive: true });
+    // window resize 시 top 재계산 (화면 회전 등)
+    window.addEventListener("resize", applyTop);
     update();
 
     return () => {
@@ -112,9 +136,11 @@ function DashboardInner() {
       vv.removeEventListener("resize", update);
       vv.removeEventListener("scroll", update);
       window.removeEventListener("scroll", update);
-      const el = appRef.current;
-      if (el) {
-        el.style.transform = "";
+      window.removeEventListener("resize", applyTop);
+      const currentEl = appRef.current;
+      if (currentEl) {
+        currentEl.style.transform = "";
+        currentEl.style.top = "";
       }
     };
   }, []);
