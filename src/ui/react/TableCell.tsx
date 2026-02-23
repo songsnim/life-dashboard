@@ -6,6 +6,7 @@ import { useAppContext } from "./context";
 import { useDataStore } from "../../store/data-store";
 import { calcSleepMinutes, formatMinutesToHM } from "../../services/date-utils";
 import { SECTION_MAP } from "../../constants";
+import { EditableListItem, AddListItemInput, MOBILE_INPUT_ATTRS } from "./EditableListItem";
 
 interface CellProps {
   entry: DayEntry;
@@ -175,6 +176,8 @@ function TimeCell({
         onKeyDown={(e) => {
           if (e.key === "Enter") e.currentTarget.blur();
         }}
+        {...MOBILE_INPUT_ATTRS}
+        enterKeyHint="done"
       />
     </div>
   );
@@ -230,15 +233,16 @@ function NumberCell({
     <div className="ld-td" style={style}>
       <input
         className="ld-input"
-        type="number"
-        min={0}
-        max={10}
+        type="text"
+        inputMode="decimal"
         value={localVal}
         onChange={(e) => setLocalVal(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={(e) => {
           if (e.key === "Enter") e.currentTarget.blur();
         }}
+        {...MOBILE_INPUT_ATTRS}
+        enterKeyHint="done"
       />
     </div>
   );
@@ -303,9 +307,11 @@ function ChecklistCell({
     <div className="ld-td ld-tasks-cell" style={style}>
       <div className="ld-task-list">
         {tasks.map((task, i) => (
-          <TaskRow
+          <EditableListItem
             key={i}
-            task={task}
+            variant="task"
+            checked={task.checked}
+            text={task.text}
             isEditing={editingIdx === i}
             onToggle={() => toggleTask(i)}
             onStartEdit={() => setEditingIdx(i)}
@@ -333,7 +339,7 @@ function ChecklistCell({
           />
         ))}
         {tasks.length === 0 && (
-          <AddTaskInput
+          <AddListItemInput
             onAdd={(text) => {
               const next = [...tasks, { checked: false, text }];
               setTasks(next);
@@ -343,87 +349,6 @@ function ChecklistCell({
         )}
       </div>
     </div>
-  );
-}
-
-function TaskRow({
-  task,
-  isEditing,
-  onToggle,
-  onStartEdit,
-  onSaveText,
-  onAddAfter,
-  onCancelEdit,
-}: {
-  task: Task;
-  isEditing: boolean;
-  onToggle: () => void;
-  onStartEdit: () => void;
-  onSaveText: (text: string) => void;
-  onAddAfter: (currentText: string) => void;
-  onCancelEdit: () => void;
-}) {
-  const [editVal, setEditVal] = useState(task.text);
-
-  return (
-    <div className="ld-task-row">
-      <input
-        type="checkbox"
-        className="ld-task-checkbox"
-        checked={task.checked}
-        onChange={onToggle}
-      />
-      {isEditing ? (
-        <input
-          autoFocus
-          className="ld-task-edit-input"
-          value={editVal}
-          onChange={(e) => setEditVal(e.target.value)}
-          onBlur={() => onSaveText(editVal)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              onAddAfter(editVal);
-            } else if (e.key === "Backspace" && editVal === "") {
-              e.preventDefault();
-              onSaveText("");
-            } else if (e.key === "Escape") {
-              e.preventDefault();
-              onCancelEdit();
-            }
-          }}
-        />
-      ) : (
-        <span
-          className={`ld-task-text${task.checked ? " ld-task-done" : ""}`}
-          onClick={onStartEdit}
-        >
-          {task.text || "\u00A0"}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function AddTaskInput({ onAdd }: { onAdd: (text: string) => void }) {
-  const [val, setVal] = useState("");
-  return (
-    <input
-      type="text"
-      placeholder="+"
-      className="ld-task-add-input"
-      value={val}
-      onChange={(e) => setVal(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-          e.preventDefault();
-          const text = val.trim();
-          if (!text) return;
-          onAdd(text);
-          setVal("");
-        }
-      }}
-    />
   );
 }
 

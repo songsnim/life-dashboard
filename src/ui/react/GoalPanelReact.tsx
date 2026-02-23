@@ -3,6 +3,29 @@ import type { GoalEntry, GoalBulkEntry } from "../../types";
 import { useViewStore } from "../../store/view-store";
 import { useDataStore } from "../../store/data-store";
 import { useAppContext } from "./context";
+import { EditableListItem, AddListItemInput } from "./EditableListItem";
+
+/** 벌크 목표 목록에서 가장 최근 데이터가 있는 goalEntry 반환 (현재 주/월과 가장 가깝게 매칭) */
+function findCurrentGoalFromBulk(entries: GoalBulkEntry[]): GoalEntry | null {
+  for (let i = entries.length - 1; i >= 0; i--) {
+    if (entries[i].goal) return entries[i].goal!;
+  }
+  return null;
+}
+
+/* ===== Hooks ===== */
+
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+}
+
+/* ===== Goal Item Types ===== */
 
 /** 벌크 목표 목록에서 가장 최근 데이터가 있는 goalEntry 반환 (현재 주/월과 가장 가깝게 매칭) */
 function findCurrentGoalFromBulk(entries: GoalBulkEntry[]): GoalEntry | null {
@@ -87,9 +110,11 @@ function GoalSection({ goalEntry }: GoalSectionProps) {
     <div className="ld-goal-section">
       <div className="ld-goal-list">
         {goals.map((g, idx) => (
-          <GoalRow
+          <EditableListItem
             key={idx}
-            goal={g}
+            variant="goal"
+            checked={g.checked}
+            text={g.text}
             isEditing={editingIdx === idx}
             onToggle={() => {
               const next = goals.map((g2, i) => (i === idx ? { ...g2, checked: !g2.checked } : g2));
@@ -120,9 +145,9 @@ function GoalSection({ goalEntry }: GoalSectionProps) {
             onCancelEdit={() => setEditingIdx(null)}
           />
         ))}
-        {/* When no goals: show transparent '+' placeholder like the Tasks cell */}
+        {/* 목표가 없을 때: TaskCell과 동일한 '+' placeholder */}
         {goals.length === 0 && (
-          <AddGoalInput
+          <AddListItemInput
             onAdd={(text) => {
               const next = [{ checked: false, text }];
               setGoals(next);
@@ -132,97 +157,6 @@ function GoalSection({ goalEntry }: GoalSectionProps) {
         )}
       </div>
     </div>
-  );
-}
-
-/* Inline goal row — mirrors TaskRow in TableCell.tsx */
-function GoalRow({
-  goal,
-  isEditing,
-  onToggle,
-  onStartEdit,
-  onSaveText,
-  onAddAfter,
-  onCancelEdit,
-}: {
-  goal: GoalItem;
-  isEditing: boolean;
-  onToggle: () => void;
-  onStartEdit: () => void;
-  onSaveText: (text: string) => void;
-  onAddAfter: (currentText: string) => void;
-  onCancelEdit: () => void;
-}) {
-  const [editVal, setEditVal] = useState(goal.text);
-
-  useEffect(() => {
-    if (!isEditing) setEditVal(goal.text);
-  }, [goal.text, isEditing]);
-
-  return (
-    <div className="ld-goal-row">
-      <input
-        type="checkbox"
-        className="ld-goal-checkbox"
-        checked={goal.checked}
-        onChange={onToggle}
-      />
-      {isEditing ? (
-        <input
-          autoFocus
-          type="text"
-          className="ld-goal-edit-input"
-          value={editVal}
-          onChange={(e) => setEditVal(e.target.value)}
-          onBlur={() => onSaveText(editVal)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              onAddAfter(editVal);
-            } else if (e.key === "Backspace" && editVal === "") {
-              e.preventDefault();
-              onSaveText("");
-            } else if (e.key === "Escape") {
-              e.preventDefault();
-              onCancelEdit();
-            }
-          }}
-        />
-      ) : (
-        <span
-          className={`ld-goal-text${goal.checked ? " ld-goal-done" : ""}`}
-          onClick={onStartEdit}
-        >
-          {goal.text || "\u00A0"}
-        </span>
-      )}
-      <button className="ld-goal-delete" onClick={() => onSaveText("")}>
-        ×
-      </button>
-    </div>
-  );
-}
-
-/* Transparent '+' placeholder input — only shown when goal list is empty */
-function AddGoalInput({ onAdd }: { onAdd: (text: string) => void }) {
-  const [val, setVal] = useState("");
-  return (
-    <input
-      type="text"
-      placeholder="+"
-      className="ld-task-add-input"
-      value={val}
-      onChange={(e) => setVal(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-          e.preventDefault();
-          const text = val.trim();
-          if (!text) return;
-          onAdd(text);
-          setVal("");
-        }
-      }}
-    />
   );
 }
 

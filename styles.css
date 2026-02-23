@@ -619,6 +619,28 @@ body.is-mobile .ld-container {
   overflow: clip;
 }
 
+/*
+ * .ld-app을 position:fixed로 설정 (모바일 키보드 핵심 수정):
+ *
+ * 문제의 근본 원인:
+ *  1) input focus 시 브라우저가 .view-content를 scroll-to-focus로 스크롤
+ *     → .ld-header가 화면 위로 밀려나 body가 header를 덮는 것처럼 보임
+ *  2) vv.height 변화로 el.style.height 수정 → .ld-body 크기 변화
+ *     → @tanstack/react-virtual이 focused row를 unmount → 포커스 잃음 → 키보드 닫힘
+ *
+ * position:fixed 효과:
+ *  - 문서 흐름에서 분리 → .view-content scroll-to-focus가 위치에 영향 없음 (1번 해결)
+ *  - JS에서 height를 변경하지 않아도 됨 → virtualizer 재렌더 없음 (2번 해결)
+ *  - translateY만으로 Android adjustPan 키보드 pan 보정
+ */
+body.is-mobile .ld-app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* height는 JS가 건드리지 않으므로 height:100%=100vh 유지 */
+}
+
 body.is-mobile .ld-header {
   padding: 8px 12px;
   gap: 6px;
@@ -633,8 +655,8 @@ body.is-mobile .ld-goal-panel {
 }
 
 body.is-mobile .ld-body {
-  min-height: 200px;
-  flex-shrink: 0;
+  min-height: 0;
+  flex-shrink: 1;
 }
 
 @media (max-width: 768px) {
@@ -656,8 +678,8 @@ body.is-mobile .ld-body {
   }
 
   .ld-body {
-    min-height: 200px;
-    flex-shrink: 0;
+    min-height: 0;
+    flex-shrink: 1;
   }
 
   .ld-table-h-scroll {

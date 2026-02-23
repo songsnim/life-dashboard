@@ -42,50 +42,78 @@ function DashboardInner() {
   const appRef = useRef<HTMLDivElement>(null);
 
   /**
-   * iOS WKWebView 키보드 대응 핵심 수정:
+   * 키보드 대응 — iOS / Android 통합 처리
    *
-   * 문제의 진짜 원인:
-   *   키보드가 열리면 iOS WKWebView가 내부 UIScrollView의 contentInset.bottom을
-   *   키보드 높이만큼 증가시킨다. 이로 인해 웹 콘텐츠 전체가 위로 스크롤된다
-   *   (window.visualViewport.offsetTop > 0). .ld-app은 height:100%로 원래 높이를
-   *   유지하지만, 스크롤된 만큼 하단에 '빈 공간(키보드 높이)'이 생긴다.
-   *   모든 배경이 transparent이므로 이 빈 공간이 투명한 컴포넌트처럼 보인다.
+   * ■ iOS WKWebView (adjustPan + contentInset 스크롤)
+   *   키보드가 열리면 contentInset.bottom이 증가, 콘텐츠 전체가 위로 스크롤된다.
+   *   → vv.offsetTop > 0 (문서가 스크롤된 양)
+   *   → translateY(vv.offsetTop) 으로 상쇄
    *
-   * 해결:
-   *   window.visualViewport의 resize/scroll 이벤트를 구독해:
-   *   1) .ld-app height = vv.height (키보드 위 실제 가시 영역 높이)
-   *   2) .ld-app translateY = vv.offsetTop (페이지 스크롤 상쇄)
+   * ■ Android adjustResize
+   *   WebView 자체가 리사이즈: window.innerHeight == vv.height (둘 다 줄어듦)
+   *   → vv.offsetTop = 0, translateY 불필요
+   *   → height = vv.height 만 적용 (== 100% 와 동일, 무해)
    *
-   *   이렇게 하면 .ld-app이 항상 키보드 위의 가시 영역을 정확히 채우고,
-   *   아래에 투명한 빈 공간이 생기지 않는다.
+   * ■ Android adjustPan (window-level pan)
+   *   WebView가 위로 밀려 올라가지만 JS document는 스크롤되지 않는다.
+   *   → window.innerHeight 불변, vv.height 만 줄어든다
+   *   → vv.offsetTop = 0 (문서 스크롤 없음)
+   *   → translateY 값을 window.innerHeight - vv.height 로 계산해야 한다
+   *      (= 키보드 높이 = WebView가 위로 밀린 양)
    *
-   * Android:
-   *   뷰포트 자체가 리사이즈되므로 vv.offsetTop=0, vv.height=줄어든 높이.
-   *   동일한 코드로 올바르게 동작한다.
+   * 세 케이스 공통 공식:
+   *   offset = vv.offsetTop > 0
+   *            ? vv.offsetTop                    (iOS / Android doc-scroll pan)
+   *            : window.innerHeight - vv.height  (Android window-pan)
+   *   → adjustResize 시 offset = innerHeight - innerHeight = 0  (no-op ✓)
    */
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
 
+    let rafId: ReturnType<typeof requestAnimationFrame> | null = null;
+
     const update = () => {
-      const el = appRef.current;
-      if (!el) return;
-      // 가시 영역 높이로 .ld-app 크기 제한 → 키보드 아래 투명 빈 공간 제거
-      el.style.height = `${vv.height}px`;
-      // 페이지 스크롤(iOS contentInset 조정으로 발생) 상쇄
-      el.style.transform = `translateY(${vv.offsetTop}px)`;
+      // 연속 resize 이벤트를 1프레임으로 배치 → layout thrashing 방지
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const el = appRef.current;
+        if (!el) return;
+
+        /**
+         * .ld-app은 CSS에서 body.is-mobile 시 position:fixed 로 지정되므로
+         * height를 JS로 변경하지 않는다.
+         *  - height 변경 시 → .ld-body 축소 → virtualizer가 focused row를
+         *    unmount → 포커스 잃음 → 키보드 닫힘 (Android table input bug)
+         *
+         * 대신 translateY만으로 Android adjustPan pan 보정:
+         *  - iOS adjustPan (contentInset scroll):  vv.offsetTop > 0
+         *  - Android window-level pan:             vv.offsetTop = 0, vv.height < innerHeight
+         *  - Android adjustResize:                 vv.height = innerHeight → offset = 0 (no-op)
+         */
+        const offset =
+          vv.offsetTop > 0
+            ? vv.offsetTop                       // iOS / Android doc-scroll pan
+            : window.innerHeight - vv.height;    // Android window-pan  /  adjustResize=0
+
+        el.style.transform = offset > 0 ? `translateY(${offset}px)` : "";
+      });
     };
 
     vv.addEventListener("resize", update);
     vv.addEventListener("scroll", update);
+    // document scroll 폴백 (일부 Android WebView에서 vv.scroll 미발화)
+    window.addEventListener("scroll", update, { passive: true });
     update();
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       vv.removeEventListener("resize", update);
       vv.removeEventListener("scroll", update);
+      window.removeEventListener("scroll", update);
       const el = appRef.current;
       if (el) {
-        el.style.height = "";
         el.style.transform = "";
       }
     };
