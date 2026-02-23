@@ -27,6 +27,28 @@ function useIsMobile(): boolean {
 
 /* ===== Goal Item Types ===== */
 
+/** 벌크 목표 목록에서 가장 최근 데이터가 있는 goalEntry 반환 (현재 주/월과 가장 가깝게 매칭) */
+function findCurrentGoalFromBulk(entries: GoalBulkEntry[]): GoalEntry | null {
+  for (let i = entries.length - 1; i >= 0; i--) {
+    if (entries[i].goal) return entries[i].goal!;
+  }
+  return null;
+}
+
+/* ===== Hooks ===== */
+
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+}
+
+/* ===== Goal Item Types ===== */
+
 interface GoalItem {
   checked: boolean;
   text: string;
