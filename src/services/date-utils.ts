@@ -34,11 +34,6 @@ export function getDateRange(mode: ViewMode, refDate: Date = new Date()): [strin
 export function getPresetDateRange(preset: DateRangePreset, refDate: Date = new Date()): [string, string] | null {
   if (preset === null) return null;
   switch (preset) {
-    case "7days": {
-      const start = new Date(refDate);
-      start.setDate(start.getDate() - 6);
-      return [formatDate(start), formatDate(refDate)];
-    }
     case "15days": {
       const start = new Date(refDate);
       start.setDate(start.getDate() - 14);
