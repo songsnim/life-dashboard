@@ -635,10 +635,12 @@ body.is-mobile .ld-container {
  */
 body.is-mobile .ld-app {
   position: fixed;
-  top: 0;
+  /* top은 JS에서 .view-content의 실제 시작 y좌표를 측정해 동적으로 설정
+   * → Android 상태바 + Obsidian 네이티브 헤더 영역 침범 방지 */
+  top: 0; /* JS 초기화 전 fallback */
   left: 0;
   right: 0;
-  /* height는 JS가 건드리지 않으므로 height:100%=100vh 유지 */
+  bottom: 0; /* height 대신 bottom:0 으로 나머지 공간 자동 채움 */
 }
 
 body.is-mobile .ld-header {
