@@ -2,7 +2,7 @@
 export type ViewMode = "weekly" | "monthly" | "yearly";
 
 /** 날짜 범위 프리셋 */
-export type DateRangePreset = "7days" | "15days" | "week" | "month" | "year" | null;
+export type DateRangePreset = "15days" | "week" | "month" | "year" | null;
 
 /** Daily Note에서 파싱한 하루치 데이터 */
 export interface DayEntry {
