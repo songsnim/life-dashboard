@@ -244,18 +244,18 @@
 }
 
 .ld-check-indicator {
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
-  border: 2px solid var(--text-faint);
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid color-mix(in srgb, var(--text-faint) 70%, transparent);
   margin: 0 auto;
-  transition: all 0.2s;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
 }
 
 .ld-bool-cell.active .ld-check-indicator {
-  background-color: rgba(46, 164, 79, 0.8);
-  border-color: rgba(46, 164, 79, 0.8);
-  transform: scale(1.1);
+  background-color: color-mix(in srgb, var(--interactive-accent) 80%, transparent);
+  border-color: color-mix(in srgb, var(--interactive-accent) 90%, transparent);
+  transform: scale(1.08);
 }
 
 /* ---------- Time / Number Input ---------- */
@@ -280,9 +280,10 @@
 /* ---------- Sleep Badge ---------- */
 .ld-sleep-badge {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  background-color: var(--background-secondary);
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
   color: var(--text-muted);
   font-family: "JetBrains Mono", monospace;
   font-size: 0.85em;
@@ -290,8 +291,9 @@
 }
 
 .ld-sleep-badge.highlight {
-  background-color: var(--interactive-accent);
-  color: var(--text-on-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--interactive-accent) 50%, transparent);
+  color: var(--interactive-accent);
 }
 
 /* ---------- Journal / Text Cell ---------- */
@@ -451,10 +453,10 @@
   flex: 1;
   min-width: 0;
   font-size: 0.85em;
-  padding: 1px 4px;
-  border: 1px solid var(--interactive-accent);
-  border-radius: 3px;
-  background: var(--background-secondary);
+  padding: 1px 5px;
+  border: 1px solid color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+  border-radius: 4px;
+  background: transparent;
   color: var(--text-normal);
   font-family: inherit;
   outline: none;
@@ -466,7 +468,7 @@
   font-size: 0.8em;
   padding: 2px 4px;
   border: none;
-  border-top: 1px dashed var(--background-modifier-border);
+  border-top: 1px dashed color-mix(in srgb, var(--background-modifier-border) 60%, transparent);
   background: transparent;
   color: var(--text-muted);
   font-family: inherit;
@@ -479,7 +481,7 @@
 
 .ld-task-add-input:focus {
   color: var(--text-normal);
-  border-top-color: var(--interactive-accent);
+  border-top-color: color-mix(in srgb, var(--interactive-accent) 70%, transparent);
 }
 
 /* ---------- Goal Panel ---------- */
@@ -521,7 +523,7 @@
   flex-grow: 1;
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--interactive-accent);
+  border-bottom: 1px solid color-mix(in srgb, var(--interactive-accent) 60%, transparent);
   border-radius: 0;
   padding: 2px 4px;
   color: var(--text-normal);
@@ -643,8 +645,8 @@ body.is-mobile .ld-app {
 }
 
 body.is-mobile .ld-header {
-  padding: 8px 12px;
-  gap: 6px;
+  padding: 6px 10px;
+  gap: 5px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   flex-shrink: 1;
@@ -658,6 +660,101 @@ body.is-mobile .ld-goal-panel {
 body.is-mobile .ld-body {
   min-height: 0;
   flex-shrink: 1;
+}
+
+/* 모바일 버튼 — 전반적으로 날씬하게 */
+body.is-mobile .ld-view-btn {
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+body.is-mobile .ld-date-preset-btn {
+  padding: 1px 7px;
+  font-size: 10px;
+}
+
+body.is-mobile .ld-filter-add-btn,
+body.is-mobile .ld-filter-clear-btn {
+  padding: 1px 7px;
+  font-size: 10px;
+}
+
+body.is-mobile .ld-col-visibility-btn {
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+/* 모바일 목표 컴포넌트 — compact */
+body.is-mobile .ld-collapsible {
+  border-radius: 5px;
+}
+
+body.is-mobile .ld-collapsible-header {
+  padding: 5px 8px;
+  font-size: 9px;
+}
+
+body.is-mobile .ld-collapsible-body {
+  padding: 5px 8px;
+}
+
+body.is-mobile .ld-goal-checkbox {
+  width: 13px;
+  height: 13px;
+}
+
+body.is-mobile .ld-goal-text,
+body.is-mobile .ld-goal-edit-input {
+  font-size: 0.8em;
+}
+
+body.is-mobile .ld-goal-add-trigger {
+  font-size: 10px;
+  padding: 2px 6px;
+  margin-top: 3px;
+}
+
+/* 모바일 테이블 셀 — compact */
+body.is-mobile .ld-td {
+  padding: 4px 5px;
+  height: 34px;
+}
+
+body.is-mobile .ld-th {
+  padding: 5px 5px;
+  font-size: 0.72em;
+}
+
+/* 모바일 task/rating 입력 — 각지고 투명하게 */
+body.is-mobile .ld-task-edit-input {
+  font-size: 0.78em;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+body.is-mobile .ld-task-add-input {
+  font-size: 0.75em;
+  padding: 1px 3px;
+}
+
+body.is-mobile .ld-task-checkbox {
+  width: 12px;
+  height: 12px;
+}
+
+body.is-mobile .ld-task-text {
+  font-size: 0.78em;
+}
+
+body.is-mobile .ld-sleep-badge {
+  padding: 1px 5px;
+  font-size: 0.78em;
+}
+
+body.is-mobile .ld-check-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
 }
 
 @media (max-width: 768px) {
@@ -1034,16 +1131,16 @@ body.is-mobile .ld-body {
 .ld-goal-grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
   align-items: start;
 }
 
 .ld-goal-grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 8px;
   align-items: start;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 /* Mobile single-column — applied via JS isMobile check */
@@ -1056,8 +1153,8 @@ body.is-mobile .ld-body {
 /* ===== Collapsible Goal Group ===== */
 .ld-collapsible {
   background: transparent;
-  border: 1px solid rgba(128, 128, 128, 0.20);
-  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 30%, transparent);
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -1066,7 +1163,7 @@ body.is-mobile .ld-body {
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 6px 10px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -1076,7 +1173,7 @@ body.is-mobile .ld-body {
   text-transform: uppercase;
   letter-spacing: 0.07em;
   text-align: left;
-  transition: color 0.15s;
+  transition: color 0.12s;
 }
 
 .ld-collapsible-header:hover {
@@ -1112,7 +1209,7 @@ body.is-mobile .ld-body {
 }
 
 .ld-bulk-goal-entry {
-  border-top: 1px solid var(--background-modifier-border);
+  border-top: 1px solid color-mix(in srgb, var(--background-modifier-border) 40%, transparent);
   padding-top: 8px;
 }
 
