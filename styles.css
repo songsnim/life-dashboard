@@ -213,6 +213,7 @@
   vertical-align: middle;
   height: 40px;
   text-align: center;
+  overflow: hidden;
 }
 
 /* ---------- Date Cell ---------- */
@@ -266,16 +267,7 @@
 }
 
 .ld-bool-cell.active .ld-check-indicator::after {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 5px;
-  height: 9px;
-  border: 2px solid var(--text-on-accent);
-  border-top: none;
-  border-left: none;
-  transform: rotate(45deg);
+  display: none;
 }
 
 /* ---------- Time / Number Input (취침/기상/스크린타임/평가) ---------- */
@@ -450,8 +442,8 @@
 
 /* Task checkbox — 커스텀 스타일 */
 .ld-task-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
+  appearance: none !important;
+  -webkit-appearance: none !important;
   width: 13px;
   height: 13px;
   margin: 0;
@@ -462,24 +454,18 @@
   position: relative;
   transition: background 0.12s ease, border-color 0.12s ease;
   background: transparent;
+  background-image: none !important;
 }
 
 .ld-task-checkbox:checked {
-  background: color-mix(in srgb, var(--interactive-accent) 80%, transparent);
+  background: color-mix(in srgb, var(--interactive-accent) 80%, transparent) !important;
+  background-image: none !important;
   border-color: var(--interactive-accent);
 }
 
+.ld-task-checkbox::after,
 .ld-task-checkbox:checked::after {
-  content: "";
-  position: absolute;
-  left: 2px;
-  top: 0px;
-  width: 4px;
-  height: 7px;
-  border: 1.5px solid var(--text-on-accent);
-  border-top: none;
-  border-left: none;
-  transform: rotate(45deg);
+  display: none !important;
 }
 
 .ld-task-checkbox:hover:not(:checked) {
@@ -576,8 +562,8 @@
 
 /* Goal checkbox — 커스텀 스타일 */
 .ld-goal-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
+  appearance: none !important;
+  -webkit-appearance: none !important;
   width: 14px;
   height: 14px;
   margin: 0;
@@ -588,24 +574,18 @@
   position: relative;
   transition: background 0.12s ease, border-color 0.12s ease;
   background: transparent;
+  background-image: none !important;
 }
 
 .ld-goal-checkbox:checked {
-  background: color-mix(in srgb, var(--interactive-accent) 80%, transparent);
+  background: color-mix(in srgb, var(--interactive-accent) 80%, transparent) !important;
+  background-image: none !important;
   border-color: var(--interactive-accent);
 }
 
+.ld-goal-checkbox::after,
 .ld-goal-checkbox:checked::after {
-  content: "";
-  position: absolute;
-  left: 2px;
-  top: 0px;
-  width: 5px;
-  height: 8px;
-  border: 1.5px solid var(--text-on-accent);
-  border-top: none;
-  border-left: none;
-  transform: rotate(45deg);
+  display: none !important;
 }
 
 .ld-goal-checkbox:hover:not(:checked) {
@@ -806,16 +786,15 @@ body.is-mobile .ld-collapsible-body {
 }
 
 body.is-mobile .ld-goal-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
   width: 13px;
   height: 13px;
   border-radius: 2px;
 }
 
 body.is-mobile .ld-goal-checkbox:checked::after {
-  left: 2px;
-  top: 0px;
-  width: 4px;
-  height: 7px;
+  display: none;
 }
 
 body.is-mobile .ld-goal-text {
@@ -844,18 +823,31 @@ body.is-mobile .ld-th {
   font-size: 0.72em;
 }
 
+/* ── 모바일 task cell — 콘텐츠 크기 자체를 줄여 row 침범 방지 ── */
+body.is-mobile .ld-tasks-cell {
+  padding: 0 !important;
+}
+
+body.is-mobile .ld-task-list {
+  gap: 0px;
+}
+
+body.is-mobile .ld-task-row {
+  padding: 0;
+  gap: 4px;
+}
+
 /* ── 모바일 task input — sleek ── */
 body.is-mobile .ld-task-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
   width: 12px;
   height: 12px;
   border-radius: 2px;
 }
 
 body.is-mobile .ld-task-checkbox:checked::after {
-  left: 2px;
-  top: 0px;
-  width: 3px;
-  height: 6px;
+  display: none;
 }
 
 body.is-mobile .ld-task-text {
@@ -1319,10 +1311,7 @@ body.is-mobile .ld-sleep-badge {
 }
 
 .ld-collapsible-title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 
