@@ -12,7 +12,6 @@ interface PresetOption {
 }
 
 const PRESET_OPTIONS: PresetOption[] = [
-  { preset: "7days", label: "최근 7일" },
   { preset: "15days", label: "최근 15일" },
   { preset: "week", label: "이번 주" },
   { preset: "month", label: "이번 달" },
