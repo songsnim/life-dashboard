@@ -212,6 +212,7 @@
   vertical-align: middle;
   height: 40px;
   text-align: center;
+  overflow: hidden;
 }
 
 /* ---------- Date Cell ---------- */
@@ -243,6 +244,7 @@
   position: relative;
 }
 
+/* Bool check indicator — accent 색상 반응, ✓ 체크 표시 */
 .ld-check-indicator {
   width: 16px;
   height: 16px;
@@ -252,29 +254,45 @@
   transition: background 0.15s, border-color 0.15s, transform 0.15s;
 }
 
+.ld-bool-cell:hover .ld-check-indicator {
+  border-color: color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+}
+
 .ld-bool-cell.active .ld-check-indicator {
   background-color: color-mix(in srgb, var(--interactive-accent) 80%, transparent);
   border-color: color-mix(in srgb, var(--interactive-accent) 90%, transparent);
   transform: scale(1.08);
 }
 
-/* ---------- Time / Number Input ---------- */
+.ld-bool-cell.active .ld-check-indicator::after {
+  display: none;
+}
+
+/* ---------- Time / Number Input (취침/기상/스크린타임/평가) ---------- */
 .ld-input {
   width: 100%;
   height: 100%;
   border: none;
+  border-bottom: 1.5px solid transparent;
   background: transparent;
   text-align: center;
   color: var(--text-normal);
   font-family: "JetBrains Mono", monospace;
   font-size: 0.95em;
-  opacity: 0.7;
+  opacity: 0.65;
+  outline: none;
+  transition: opacity 0.12s ease, border-color 0.12s ease;
+}
+
+.ld-input:hover {
+  opacity: 0.85;
+  border-bottom-color: color-mix(in srgb, var(--background-modifier-border) 50%, transparent);
 }
 
 .ld-input:focus {
-  outline: none;
   opacity: 1;
-  font-weight: bold;
+  font-weight: 600;
+  border-bottom-color: var(--interactive-accent);
 }
 
 /* ---------- Sleep Badge ---------- */
@@ -420,13 +438,36 @@
   padding: 1px 0;
 }
 
+/* Task checkbox — 커스텀 스타일 */
 .ld-task-checkbox {
-  width: 14px;
-  height: 14px;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 13px;
+  height: 13px;
   margin: 0;
   flex-shrink: 0;
-  accent-color: var(--interactive-accent);
+  border: 1.5px solid color-mix(in srgb, var(--text-faint) 65%, transparent);
+  border-radius: 3px;
   cursor: pointer;
+  position: relative;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  background: transparent;
+  background-image: none !important;
+}
+
+.ld-task-checkbox:checked {
+  background: color-mix(in srgb, var(--interactive-accent) 80%, transparent) !important;
+  background-image: none !important;
+  border-color: var(--interactive-accent);
+}
+
+.ld-task-checkbox::after,
+.ld-task-checkbox:checked::after {
+  display: none !important;
+}
+
+.ld-task-checkbox:hover:not(:checked) {
+  border-color: color-mix(in srgb, var(--interactive-accent) 50%, transparent);
 }
 
 .ld-task-text {
@@ -449,6 +490,7 @@
   color: var(--text-muted);
 }
 
+/* Task 편집 입력 — 투명 + focus ring */
 .ld-task-edit-input {
   flex: 1;
   min-width: 0;
@@ -460,23 +502,33 @@
   color: var(--text-normal);
   font-family: inherit;
   outline: none;
+  box-shadow: 0 0 0 0 transparent;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
 }
 
+.ld-task-edit-input:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+}
+
+/* Task 추가 입력 — ghost 스타일 */
 .ld-task-add-input {
   width: 100%;
-  margin-top: 3px;
+  margin-top: 4px;
   font-size: 0.8em;
   padding: 2px 4px;
   border: none;
   border-top: 1px dashed color-mix(in srgb, var(--background-modifier-border) 60%, transparent);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-faint);
   font-family: inherit;
   outline: none;
+  transition: border-color 0.12s ease, color 0.12s ease;
 }
 
 .ld-task-add-input::placeholder {
   color: var(--text-faint);
+  font-size: 0.95em;
 }
 
 .ld-task-add-input:focus {
@@ -505,12 +557,36 @@
   width: 100%;
 }
 
+/* Goal checkbox — 커스텀 스타일 */
 .ld-goal-checkbox {
-  width: 16px;
-  height: 16px;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 14px;
+  height: 14px;
   margin: 0;
-  accent-color: var(--interactive-accent);
+  flex-shrink: 0;
+  border: 1.5px solid color-mix(in srgb, var(--text-faint) 65%, transparent);
+  border-radius: 3px;
   cursor: pointer;
+  position: relative;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  background: transparent;
+  background-image: none !important;
+}
+
+.ld-goal-checkbox:checked {
+  background: color-mix(in srgb, var(--interactive-accent) 80%, transparent) !important;
+  background-image: none !important;
+  border-color: var(--interactive-accent);
+}
+
+.ld-goal-checkbox::after,
+.ld-goal-checkbox:checked::after {
+  display: none !important;
+}
+
+.ld-goal-checkbox:hover:not(:checked) {
+  border-color: color-mix(in srgb, var(--interactive-accent) 50%, transparent);
 }
 
 .ld-goal-text {
@@ -519,6 +595,7 @@
   cursor: text;
 }
 
+/* Goal 편집 입력 — 투명 + focus ring */
 .ld-goal-edit-input {
   flex-grow: 1;
   background: transparent;
@@ -528,6 +605,15 @@
   padding: 2px 4px;
   color: var(--text-normal);
   outline: none;
+  font-size: inherit;
+  font-family: inherit;
+  box-shadow: 0 0 0 0 transparent;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ld-goal-edit-input:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 18%, transparent);
 }
 
 .ld-goal-delete {
@@ -545,26 +631,25 @@
   opacity: 1;
 }
 
-/* Goal add trigger — subtle '+' button at bottom of goal list */
+/* Goal add trigger — ghost '+' */
 .ld-goal-add-trigger {
-  margin-top: 6px;
-  padding: 3px 8px;
+  margin-top: 4px;
+  padding: 2px 6px;
   width: 100%;
   text-align: left;
-  background: none;
+  background: transparent;
   border: 1px dashed transparent;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-faint);
-  transition: all 0.15s;
+  transition: color 0.12s ease, border-color 0.12s ease;
   line-height: 1.4;
 }
 
 .ld-goal-add-trigger:hover {
   color: var(--text-muted);
-  border-color: rgba(128, 128, 128, 0.35);
-  background: rgba(128, 128, 128, 0.06);
+  border-color: color-mix(in srgb, var(--background-modifier-border) 40%, transparent);
 }
 
 /* 모바일 접힘 상태 인라인 목표 미리보기 */
@@ -662,7 +747,7 @@ body.is-mobile .ld-body {
   flex-shrink: 1;
 }
 
-/* 모바일 버튼 — 전반적으로 날씬하게 */
+/* ── 모바일 버튼 compact ── */
 body.is-mobile .ld-view-btn {
   padding: 2px 8px;
   font-size: 10px;
@@ -684,7 +769,7 @@ body.is-mobile .ld-col-visibility-btn {
   font-size: 10px;
 }
 
-/* 모바일 목표 컴포넌트 — compact */
+/* ── 모바일 goal 컴포넌트 compact ── */
 body.is-mobile .ld-collapsible {
   border-radius: 5px;
 }
@@ -699,8 +784,15 @@ body.is-mobile .ld-collapsible-body {
 }
 
 body.is-mobile .ld-goal-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
   width: 13px;
   height: 13px;
+  border-radius: 2px;
+}
+
+body.is-mobile .ld-goal-checkbox:checked::after {
+  display: none;
 }
 
 body.is-mobile .ld-goal-text,
@@ -714,7 +806,7 @@ body.is-mobile .ld-goal-add-trigger {
   margin-top: 3px;
 }
 
-/* 모바일 테이블 셀 — compact */
+/* ── 모바일 테이블 셀 compact ── */
 body.is-mobile .ld-td {
   padding: 4px 5px;
   height: 34px;
@@ -725,7 +817,37 @@ body.is-mobile .ld-th {
   font-size: 0.72em;
 }
 
-/* 모바일 task/rating 입력 — 각지고 투명하게 */
+/* ── 모바일 task cell — 콘텐츠 크기 자체를 줄여 row 침범 방지 ── */
+body.is-mobile .ld-tasks-cell {
+  padding: 0 !important;
+}
+
+body.is-mobile .ld-task-list {
+  gap: 0px;
+}
+
+body.is-mobile .ld-task-row {
+  padding: 0;
+  gap: 4px;
+}
+
+/* ── 모바일 task input — sleek ── */
+body.is-mobile .ld-task-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+body.is-mobile .ld-task-checkbox:checked::after {
+  display: none;
+}
+
+body.is-mobile .ld-task-text {
+  font-size: 0.78em;
+}
+
 body.is-mobile .ld-task-edit-input {
   font-size: 0.78em;
   padding: 1px 4px;
@@ -737,15 +859,12 @@ body.is-mobile .ld-task-add-input {
   padding: 1px 3px;
 }
 
-body.is-mobile .ld-task-checkbox {
-  width: 12px;
-  height: 12px;
+/* ── 모바일 rating/time input ── */
+body.is-mobile .ld-input {
+  font-size: 0.85em;
 }
 
-body.is-mobile .ld-task-text {
-  font-size: 0.78em;
-}
-
+/* ── 모바일 sleep badge compact ── */
 body.is-mobile .ld-sleep-badge {
   padding: 1px 5px;
   font-size: 0.78em;
@@ -1188,10 +1307,7 @@ body.is-mobile .ld-check-indicator {
 }
 
 .ld-collapsible-title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 
