@@ -85,7 +85,7 @@ function BoolCell({
   const field = col.entryKey as "exercise" | "reading" | "sobriety";
   const storeValue = useDataStore((s) => {
     const e = s.entries.find((x) => x.date === entry.date);
-    return e ? (e[field] as boolean) : (entry[field] as boolean);
+    return e ? e[field] : entry[field];
   });
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -135,7 +135,7 @@ function TimeCell({
   const field = col.entryKey as "bedtime" | "wakeTime" | "screenTime";
   const storeValue = useDataStore((s) => {
     const e = s.entries.find((x) => x.date === entry.date);
-    return e ? (e[field] as string | null) : (entry[field] as string | null);
+    return e ? e[field] : entry[field];
   });
   const [localVal, setLocalVal] = useState(storeValue ?? "");
   const originalRef = useRef(storeValue ?? "");
@@ -198,7 +198,7 @@ function NumberCell({
   const field = col.entryKey as "rating";
   const storeValue = useDataStore((s) => {
     const e = s.entries.find((x) => x.date === entry.date);
-    return e ? (e[field] as number | null) : (entry[field] as number | null);
+    return e ? e[field] : entry[field];
   });
   const [localVal, setLocalVal] = useState(storeValue?.toString() ?? "");
   const originalRef = useRef(storeValue?.toString() ?? "");
@@ -367,7 +367,7 @@ function TextCell({
   const field = col.entryKey as "journal";
   const storeValue = useDataStore((s) => {
     const e = s.entries.find((x) => x.date === entry.date);
-    return e ? (e[field] as string) : (entry[field] as string);
+    return e ? e[field] : entry[field];
   });
 
   const firstLine = storeValue ? storeValue.split("\n")[0].trim() : "-";

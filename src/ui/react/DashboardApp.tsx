@@ -89,7 +89,7 @@ function DashboardInner() {
     // 초기 top 설정 (Obsidian 헤더 높이만큼 내려놓기)
     const applyTop = () => {
       const top = getContainerTop();
-      el.style.top = top > 0 ? `${top}px` : "0px";
+      el.setCssProps({ "--ld-container-top": top > 0 ? `${top}px` : "0px" });
     };
     applyTop();
 
@@ -119,7 +119,7 @@ function DashboardInner() {
             ? vv.offsetTop                       // iOS / Android doc-scroll pan
             : window.innerHeight - vv.height;    // Android window-pan  /  adjustResize=0
 
-        currentEl.style.transform = offset > 0 ? `translateY(${offset}px)` : "";
+        currentEl.setCssProps({ "--ld-keyboard-offset": offset > 0 ? `${offset}px` : "0px" });
       });
     };
 
@@ -139,8 +139,7 @@ function DashboardInner() {
       window.removeEventListener("resize", applyTop);
       const currentEl = appRef.current;
       if (currentEl) {
-        currentEl.style.transform = "";
-        currentEl.style.top = "";
+        currentEl.setCssProps({ "--ld-container-top": "0px", "--ld-keyboard-offset": "0px" });
       }
     };
   }, []);

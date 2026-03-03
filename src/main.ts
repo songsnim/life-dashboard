@@ -106,8 +106,8 @@ class LifeDashboardSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Weekly notes 폴더")
-      .setDesc("Weekly note 파일들이 위치한 폴더 경로")
+      .setName("Weekly notes folder")
+      .setDesc("Folder path where weekly note files are located")
       .addText((text) =>
         text
           .setPlaceholder("Weekly")
@@ -119,8 +119,8 @@ class LifeDashboardSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Monthly notes 폴더")
-      .setDesc("Monthly note 파일들이 위치한 폴더 경로")
+      .setName("Monthly notes folder")
+      .setDesc("Folder path where monthly note files are located")
       .addText((text) =>
         text
           .setPlaceholder("Monthly")
@@ -132,11 +132,11 @@ class LifeDashboardSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Yearly notes 폴더")
-      .setDesc("Yearly note 파일들이 위치한 폴더 경로 (파일명: 연도, e.g. 2026.md)")
+      .setName("Yearly notes folder")
+      .setDesc("Folder path where yearly note files are located (filename: year, e.g. 2026.md)")
       .addText((text) =>
         text
-          .setPlaceholder("Area/Daily/Years")
+          .setPlaceholder("area/daily/years")
           .setValue(this.plugin.settings.yearlyNotesFolder)
           .onChange((value) => {
             this.plugin.settings.yearlyNotesFolder = value.trim();
@@ -145,8 +145,8 @@ class LifeDashboardSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Daily note 파일명 포맷")
-      .setDesc("Specify the date format using Moment.js syntax (default: YYYY-MM-DD ddd)")
+      .setName("Daily note filename format")
+      .setDesc("Date format using Moment.js syntax (default: YYYY-MM-DD ddd)")
       .addText((text) =>
         text
           .setPlaceholder("YYYY-MM-DD ddd")

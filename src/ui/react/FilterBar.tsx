@@ -199,7 +199,7 @@ function FilterAdder({
             ? value === "true"
             : value;
 
-    onAdd({ columnId, operator, value: parsedValue as FilterRule["value"] });
+    onAdd({ columnId, operator, value: parsedValue });
   };
 
   return (

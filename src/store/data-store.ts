@@ -48,7 +48,7 @@ function getCellValue(entry: DayEntry, columnId: string): string | number | bool
     if (col.type === ColumnType.TIME && typeof val === "string") {
       return parseTimeToMinutes(val) ?? null;
     }
-    return val as string | number | boolean | null;
+    return val;
   }
 
   return null;
