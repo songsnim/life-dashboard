@@ -84,6 +84,68 @@
   font-weight: 700;
 }
 
+/* ---------- Stats Strip ---------- */
+.ld-stats-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  padding: 0 6px;
+  margin-left: 6px;
+}
+
+/* Shared two-column layout for all stat items: icon left, info right */
+.ld-stat-donut,
+.ld-stat-bar,
+.ld-stat-stars {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Right column: label + value stacked vertically */
+.ld-stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+.ld-stat-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.ld-stat-value {
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+  line-height: 1;
+}
+
+/* Mobile: tighter */
+body.is-mobile .ld-stats-strip {
+  gap: 4px;
+  padding: 0 3px;
+  margin-left: 4px;
+}
+
+body.is-mobile .ld-stat-label {
+  font-size: 8px;
+}
+
+body.is-mobile .ld-stat-value {
+  font-size: 8px;
+}
+
 /* ---------- Goal Panel ---------- */
 .ld-goal-panel {
   flex-grow: 1;
