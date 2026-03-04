@@ -12,6 +12,7 @@ import { GoalPanelReact } from "./GoalPanelReact";
 import { FilterBar } from "./FilterBar";
 import { ColumnVisibilityMenu } from "./ColumnVisibilityMenu";
 import { ChartSection } from "./ChartSection";
+import { StatsStrip } from "./StatsStrip";
 import { VirtualTable } from "./VirtualTable";
 
 interface DashboardAppProps {
@@ -172,8 +173,8 @@ function DashboardInner() {
         <div className="ld-header-top">
           <div className="ld-header-controls">
             <ViewSwitcherReact />
+            <StatsStrip entries={filteredEntries} />
           </div>
-          <ColumnVisibilityMenu />
         </div>
         <GoalPanelReact
           weeklyGoal={weeklyGoal}
