@@ -117,14 +117,14 @@
 }
 
 .ld-stat-label {
-  font-size: 9px;
+  font-size: 10.8px;
   font-weight: 600;
   color: var(--text-muted);
   line-height: 1;
 }
 
 .ld-stat-value {
-  font-size: 9px;
+  font-size: 10.8px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--text-normal);
@@ -139,11 +139,11 @@ body.is-mobile .ld-stats-strip {
 }
 
 body.is-mobile .ld-stat-label {
-  font-size: 8px;
+  font-size: 9.6px;
 }
 
 body.is-mobile .ld-stat-value {
-  font-size: 8px;
+  font-size: 9.6px;
 }
 
 /* ---------- Goal Panel ---------- */

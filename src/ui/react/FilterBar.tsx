@@ -3,6 +3,7 @@ import type { FilterRule, DateRangePreset } from "../../types";
 import { ColumnType } from "../../types";
 import { TABLE_COLUMNS } from "../../constants";
 import { useViewStore } from "../../store/view-store";
+import { ColumnVisibilityMenu } from "./ColumnVisibilityMenu";
 
 /* ===== DatePresetBar ===== */
 
@@ -129,6 +130,8 @@ export function FilterBar() {
       )}
       <span className="ld-filter-sep" />
       <DatePresetPills />
+      <span className="ld-filter-sep" />
+      <ColumnVisibilityMenu />
     </div>
   );
 }
