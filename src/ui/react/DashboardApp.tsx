@@ -10,7 +10,6 @@ import { useViewStore } from "../../store/view-store";
 import { ViewSwitcherReact } from "./ViewSwitcherReact";
 import { GoalPanelReact } from "./GoalPanelReact";
 import { FilterBar } from "./FilterBar";
-import { ColumnVisibilityMenu } from "./ColumnVisibilityMenu";
 import { ChartSection } from "./ChartSection";
 import { StatsStrip } from "./StatsStrip";
 import { VirtualTable } from "./VirtualTable";

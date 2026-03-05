@@ -136,7 +136,7 @@ class LifeDashboardSettingTab extends PluginSettingTab {
       .setDesc("Folder path where yearly note files are located (filename: year, e.g. 2026.md)")
       .addText((text) =>
         text
-          .setPlaceholder("area/daily/years")
+          .setPlaceholder("Area/daily/years")
           .setValue(this.plugin.settings.yearlyNotesFolder)
           .onChange((value) => {
             this.plugin.settings.yearlyNotesFolder = value.trim();
@@ -146,10 +146,10 @@ class LifeDashboardSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Daily note filename format")
-      .setDesc("Date format using Moment.js syntax (default: YYYY-MM-DD ddd)")
+      .setDesc("Date format using moment.js syntax")
       .addText((text) =>
         text
-          .setPlaceholder("YYYY-MM-DD ddd")
+          .setPlaceholder("Yyyy-mm-dd ddd")
           .setValue(this.plugin.settings.dailyFormat)
           .onChange((value) => {
             this.plugin.settings.dailyFormat = value.trim();
