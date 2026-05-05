@@ -32,8 +32,7 @@ export const TABLE_COLUMNS: ColumnDef[] = [
   { id: "exercise",       name: "운동",   type: ColumnType.BOOLEAN,   source: "frontmatter",   frontmatterKey: "운동", entryKey: "exercise",   width: 56,  visible: true },
   { id: "sobriety",       name: "금주",   type: ColumnType.BOOLEAN,   source: "frontmatter",   frontmatterKey: "금주", entryKey: "sobriety",   width: 56,  visible: true },
   { id: "screen-time",    name: "스크린", type: ColumnType.TIME,      source: "frontmatter",   frontmatterKey: "스크린타임", entryKey: "screenTime", width: 72, visible: true },
-  { id: "tasks",          name: "할 일",  type: ColumnType.CHECKLIST, source: "body-section",  entryKey: "tasks",      width: 200, visible: true },
-  { id: "rating",         name: "평가",   type: ColumnType.NUMBER,    source: "frontmatter",   frontmatterKey: "평가", entryKey: "rating",     width: 56,  visible: true },
+{ id: "rating",         name: "평가",   type: ColumnType.NUMBER,    source: "frontmatter",   frontmatterKey: "평가", entryKey: "rating",     width: 56,  visible: true },
   { id: "journal",        name: "저널",   type: ColumnType.TEXT,      source: "body-section",  entryKey: "journal",    width: 240, visible: true },
 ];
 

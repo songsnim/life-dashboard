@@ -16,6 +16,7 @@ import {
   getAllWeeksInYear,
   getWeekStartFromWeekNumber,
   getWeekRangeLabel,
+  formatDate,
 } from "../services/date-utils";
 import { DataService } from "../service";
 import { useDataStore } from "../store/data-store";
@@ -144,6 +145,9 @@ export class DashboardView extends ItemView {
     // Skip refresh if there are pending writes (to avoid overwriting optimistic state)
     if (useDataStore.getState().pendingWrites > 0) return;
 
+    // 오늘 daily note가 없으면 Periodic Notes 커맨드로 생성
+    await this.ensureTodayNote();
+
     useDataStore.getState().setLoading(true);
 
     const { viewMode, dateRangePreset } = useViewStore.getState().config;
@@ -185,6 +189,23 @@ export class DashboardView extends ItemView {
     }
 
     useDataStore.getState().setLoading(false);
+  }
+
+  /** 오늘 daily note가 없으면 Periodic Notes 커맨드로 생성하고 파일이 나타날 때까지 대기 */
+  private async ensureTodayNote(): Promise<void> {
+    const today = formatDate(new Date());
+    if (this.resolveDailyNote(today)) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const commands = (this.app as any).commands;
+    if (!commands) return;
+    commands.executeCommandById("periodic-notes:open-daily-note");
+
+    // 파일 생성될 때까지 최대 2초 대기 (100ms 간격)
+    for (let i = 0; i < 20; i++) {
+      await new Promise((r) => setTimeout(r, 100));
+      if (this.resolveDailyNote(today)) break;
+    }
   }
 
   private async loadEntries(dates: string[]) {
