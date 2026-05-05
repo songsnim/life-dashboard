@@ -127,4 +127,6 @@ export interface ViewConfig {
 export interface PersistedViewConfig extends ViewConfig {
   columnWidths: Record<string, number>;
   columnVisible: Record<string, boolean>;
+  screenTimeGoalMin?: number;
+  wakeTimeGoalMin?: number;
 }

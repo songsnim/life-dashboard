@@ -1,6 +1,7 @@
-import React, { useMemo, type CSSProperties } from "react";
+import React, { useMemo, useRef, useCallback, type CSSProperties } from "react";
 import type { DayEntry } from "../../types";
 import { calcSleepMinutes, parseTimeToMinutes } from "../../services/date-utils";
+import { useViewStore } from "../../store/view-store";
 
 type StatusLevel = "good" | "warn" | "danger";
 
@@ -22,9 +23,9 @@ function getSleepStatus(avgMin: number): StatusLevel {
   return "danger";
 }
 
-function getScreenStatus(avgMin: number): StatusLevel {
-  if (avgMin < 240) return "good";
-  if (avgMin < 300) return "warn";
+function getScreenStatus(avgMin: number, goalMin: number): StatusLevel {
+  if (avgMin < goalMin) return "good";
+  if (avgMin < goalMin + 60) return "warn";
   return "danger";
 }
 
@@ -162,9 +163,65 @@ function StarStat({ rating, title }: { rating: number; title: string }) {
   );
 }
 
+/** 드래그로 스크린타임 목표를 조정하는 래퍼 */
+function DraggableScreenTimeStat({
+  avgMinutes,
+  goalMin,
+  onGoalChange,
+}: {
+  avgMinutes: number;
+  goalMin: number;
+  onGoalChange: (min: number) => void;
+}) {
+  const dragState = useRef<{ startX: number; startGoal: number } | null>(null);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    dragState.current = { startX: e.clientX, startGoal: goalMin };
+
+    const onMove = (me: MouseEvent) => {
+      if (!dragState.current) return;
+      const delta = me.clientX - dragState.current.startX;
+      // 3px당 15분 변화, 15분 단위 스냅
+      const raw = dragState.current.startGoal + Math.round(delta / 3) * 15;
+      onGoalChange(Math.max(30, Math.min(720, raw)));
+    };
+    const onUp = () => {
+      dragState.current = null;
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [goalMin, onGoalChange]);
+
+  const goalH  = Math.floor(goalMin / 60);
+  const goalMm = goalMin % 60;
+  const goalStr = goalMm === 0 ? `${goalH}h` : `${goalH}h${goalMm}m`;
+
+  return (
+    <span
+      style={{ cursor: "ew-resize" }}
+      title={`평균 스크린타임 · 목표 ${goalStr} (드래그로 조정)`}
+      onMouseDown={onMouseDown}
+    >
+      <TimePieStat
+        avgMinutes={avgMinutes}
+        maxMinutes={goalMin + 60}
+        label="스크린"
+        title=""
+        getStatus={(m) => getScreenStatus(m, goalMin)}
+      />
+    </span>
+  );
+}
+
 interface StatsStripProps { entries: DayEntry[]; }
 
 export function StatsStrip({ entries }: StatsStripProps) {
+  const screenTimeGoalMin = useViewStore((s) => s.screenTimeGoalMin);
+  const setScreenTimeGoalMin = useViewStore((s) => s.setScreenTimeGoalMin);
+
   const stats = useMemo(() => {
     if (entries.length === 0) return null;
     const n = entries.length;
@@ -221,12 +278,10 @@ export function StatsStrip({ entries }: StatsStripProps) {
         />
       )}
       {stats.avgScreenMin !== null && (
-        <TimePieStat
+        <DraggableScreenTimeStat
           avgMinutes={stats.avgScreenMin}
-          maxMinutes={300}
-          label="스크린"
-          title="평균 스크린타임"
-          getStatus={getScreenStatus}
+          goalMin={screenTimeGoalMin}
+          onGoalChange={setScreenTimeGoalMin}
         />
       )}
       {stats.avgRating !== null && (

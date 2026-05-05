@@ -7,6 +7,8 @@ interface ViewState {
   config: ViewConfig;
   columnWidths: Record<string, number>;
   columnVisible: Record<string, boolean>;
+  screenTimeGoalMin: number;
+  wakeTimeGoalMin: number;
 
   // Lifecycle
   injectSaveFn: (fn: () => Promise<void>) => void;
@@ -37,6 +39,10 @@ interface ViewState {
   // Column display
   setColumnWidth: (columnId: string, width: number) => void;
   setColumnVisible: (columnId: string, visible: boolean) => void;
+
+  // Screen time goal
+  setScreenTimeGoalMin: (min: number) => void;
+  setWakeTimeGoalMin: (min: number) => void;
 }
 
 let saveFn: (() => Promise<void>) | null = null;
@@ -59,6 +65,8 @@ export const useViewStore = create<ViewState>((set, get) => ({
   config: { ...DEFAULT_VIEW_CONFIG },
   columnWidths: { ...defaultColumnWidths },
   columnVisible: { ...defaultColumnVisible },
+  screenTimeGoalMin: 240,
+  wakeTimeGoalMin: 420,
 
   injectSaveFn: (fn) => {
     saveFn = fn;
@@ -84,12 +92,14 @@ export const useViewStore = create<ViewState>((set, get) => ({
       },
       columnWidths: { ...defaultColumnWidths, ...saved.columnWidths },
       columnVisible: { ...defaultColumnVisible, ...saved.columnVisible },
+      screenTimeGoalMin: saved.screenTimeGoalMin ?? 240,
+      wakeTimeGoalMin: saved.wakeTimeGoalMin ?? 420,
     });
   },
 
   serialize: (): PersistedViewConfig => {
-    const { config, columnWidths, columnVisible } = get();
-    return { ...config, columnWidths, columnVisible };
+    const { config, columnWidths, columnVisible, screenTimeGoalMin, wakeTimeGoalMin } = get();
+    return { ...config, columnWidths, columnVisible, screenTimeGoalMin, wakeTimeGoalMin };
   },
 
   triggerSave: () => {
@@ -206,6 +216,17 @@ export const useViewStore = create<ViewState>((set, get) => ({
 
   setColumnVisible: (columnId, visible) => {
     set((s) => ({ columnVisible: { ...s.columnVisible, [columnId]: visible } }));
+    triggerSaveImpl();
+  },
+
+  setScreenTimeGoalMin: (min) => {
+    set({ screenTimeGoalMin: Math.max(30, Math.min(720, min)) });
+    triggerSaveImpl();
+  },
+
+  setWakeTimeGoalMin: (min) => {
+    // 0:00 ~ 23:45 범위 (분 단위)
+    set({ wakeTimeGoalMin: Math.max(0, Math.min(23 * 60 + 45, min)) });
     triggerSaveImpl();
   },
 }));
